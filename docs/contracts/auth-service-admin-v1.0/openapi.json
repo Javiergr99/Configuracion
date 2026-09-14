@@ -1,0 +1,2916 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Auth Service",
+    "description": "API independiente para autenticación, usuarios, roles y generación de tokens.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Login Access Token",
+        "operationId": "login_access_token_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_access_token_auth_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/TwoFactorSetupRequiredResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TwoFactorVerificationRequiredResponse"
+                    }
+                  ],
+                  "title": "Response Login Access Token Auth Login Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login/2fa": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Login Verify 2Fa",
+        "description": "Verifica el código TOTP y entrega tokens de sesión.",
+        "operationId": "login_verify_2fa_auth_login_2fa_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TempTokenVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/setup": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Setup 2Fa",
+        "operationId": "setup_2fa_auth_setup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TempTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorSetupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/enable": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Enable 2Fa",
+        "operationId": "enable_2fa_auth_enable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TempTokenVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Refresh Access Token",
+        "description": "Recibe un refresh_token válido, lo revoca (rotación) y devuelve\nun nuevo Access Token y un nuevo Refresh Token.",
+        "operationId": "refresh_access_token_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Logout",
+        "description": "Cierra sesión eliminando el refresh_token en la base de datos.",
+        "operationId": "logout_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/restablecer-password": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Restablecer Password",
+        "description": "Restablece la contraseña usando el token enviado por correo.",
+        "operationId": "restablecer_password_auth_restablecer_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestablecerPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/redirect-code": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Crear Redirect Code",
+        "description": "Genera un código temporal de un solo uso para redirigir al usuario\nautenticado hacia un módulo externo permitido sin exponer tokens en la URL.",
+        "operationId": "crear_redirect_code_auth_redirect_code_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedirectCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectCodeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/exchange-code": {
+      "post": {
+        "tags": [
+          "Autenticación"
+        ],
+        "summary": "Exchange Redirect Code",
+        "description": "Intercambia un código temporal de redirección por tokens de sesión.\nEl código queda invalidado al primer uso.",
+        "operationId": "exchange_redirect_code_auth_exchange_code_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Listar Usuarios",
+        "description": "Lista usuarios según el alcance del usuario autenticado.\n\nEste endpoint devuelve el listado de usuarios disponibles para el usuario\nque inició sesión, respetando la jerarquía y los permisos por grupo/registro.\n\nReglas principales:\n- SUPER_ADMIN / Dios puede visualizar todos los usuarios de todos los\n  registros existentes en el servicio de autenticación.\n- Un administrador normal no ve todos los usuarios del sistema.\n- Un administrador normal solo puede visualizar usuarios que pertenezcan\n  a los grupos/registros donde él tenga permiso administrativo.\n- Si un administrador pertenece o administra más de un grupo, podrá ver\n  usuarios de todos esos grupos.\n- Si un usuario pertenece a alguno de los grupos administrables por el\n  administrador autenticado, aparecerá en el listado.\n- Si un usuario pertenece únicamente a grupos que el administrador no\n  administra, no aparecerá en la respuesta.\n\nEjemplos:\n- Si el usuario autenticado es SUPER_ADMIN:\n  puede ver usuarios de MP, MH, VF, RNCAS y futuros registros.\n\n- Si el usuario autenticado administra solo MP:\n  verá usuarios que pertenezcan a MP.\n  No verá usuarios exclusivos de MH, VF o RNCAS.\n\n- Si el usuario autenticado administra MP y MH:\n  verá usuarios de MP, usuarios de MH y usuarios que pertenezcan a ambos.\n  No verá usuarios exclusivos de VF o RNCAS.\n\n- Si un usuario objetivo pertenece a MP y RNCAS:\n  un administrador de MP sí podrá verlo porque existe cruce con MP.\n  un administrador de MH no podrá verlo si no administra MP ni RNCAS.\n\nInformación devuelta:\n- Datos generales del usuario.\n- Estatus.\n- Instancia.\n- Grupos a los que pertenece el usuario.\n\nProfundidad de información:\n- SUPER_ADMIN puede recibir información más completa de los permisos del\n  usuario, incluyendo grupos, módulos y acciones, si el service así lo\n  serializa.\n- Un administrador normal solo recibe el listado de usuarios permitidos\n  junto con sus grupos correspondientes.\n- Un administrador normal no debe recibir módulos ni acciones de los\n  usuarios listados.\n\nEste endpoint no devuelve:\n- Contraseñas.\n- Tokens.\n- Secretos de 2FA.\n- Información de recuperación de contraseña.\n\nUso principal:\nSirve para que el panel de administración muestre únicamente los usuarios\nque están dentro del entorno o alcance del administrador autenticado.\n\nPermiso requerido:\n- VER_USUARIOS",
+        "operationId": "listar_usuarios_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserListPublic"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Usuarios Users Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Crear Usuario",
+        "description": "Crea un usuario dentro del servicio de autenticación.\n\nEste endpoint permite registrar una cuenta nueva dentro de auth_service.\nEl usuario se crea SIN contraseña, ya que la contraseña será definida\nposteriormente por el propio usuario mediante un enlace de activación\nenviado por correo electrónico.\n\nReglas de alcance:\n- SUPER_ADMIN / Dios puede crear usuarios en cualquier grupo o registro.\n- Un administrador normal solo puede crear usuarios dentro de los grupos\n  donde tenga el permiso CREAR_USUARIO.\n- Si un administrador intenta crear un usuario en un grupo que no administra,\n  el sistema debe responder 403.\n- El grupo inicial del usuario se define mediante grupo_id.\n\nImportancia de grupo_id:\n- grupo_id indica a qué registro o sistema pertenecerá inicialmente el usuario.\n- No representa todavía permisos funcionales completos.\n- Sirve para que el usuario no quede huérfano sin registro.\n- Sirve para validar que el administrador autenticado tenga permiso para\n  crear usuarios dentro de ese grupo.\n- Sirve para que el usuario aparezca en el entorno correspondiente de los\n  administradores de ese registro.\n\nFlujo esperado:\n1. El administrador crea el usuario con sus datos generales y grupo_id.\n2. El usuario queda registrado sin contraseña.\n3. El sistema asigna automáticamente la relación UsuarioGrupo con el grupo\n   recibido en grupo_id.\n4. Posteriormente, el administrador asigna módulos y acciones mediante:\n   POST /users/{user_id}/permisos\n5. Al asignar permisos, si el usuario todavía no tiene contraseña, el sistema\n   envía el correo de bienvenida/activación con el enlace para crear la\n   contraseña por primera vez.\n\nCampos importantes:\n- correo_electronico debe ser único.\n- curp debe ser única.\n- entidad_federativa_id indica la entidad federativa del usuario.\n- estatus_id indica el estado inicial de la cuenta.\n- instancia_id indica la institución o instancia asociada.\n- grupo_id indica el grupo/registro inicial del usuario.\n\nRestricciones:\n- No permite enviar contraseña.\n- No asigna módulos ni acciones automáticamente.\n- No envía correo de activación al crear el usuario.\n- El correo de activación se envía después, cuando se asignan permisos con\n  POST /users/{user_id}/permisos.\n- No permite que un administrador normal cree usuarios en grupos fuera de\n  su alcance.\n\nEjemplo:\n- Si el usuario autenticado es SUPER_ADMIN, puede crear usuarios para MP,\n  MH, VF, RNCAS o futuros registros.\n- Si el usuario autenticado administra solo MP, solo puede crear usuarios\n  con grupo_id de MP.\n- Si el usuario autenticado administra MP y MH, puede crear usuarios con\n  grupo_id de MP o MH.\n- Si intenta crear un usuario en VF/RNCAS sin administrar esos grupos,\n  debe recibir 403.\n\nPermiso requerido:\n- CREAR_USUARIO",
+        "operationId": "crear_usuario_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Obtener Mi Usuario",
+        "description": "Consulta la información del usuario autenticado.\n\nEste endpoint devuelve los datos principales de la cuenta que inició sesión,\njunto con su estatus, instancia y permisos asignados.\n\nLa respuesta incluye:\n- datos generales del usuario\n- correo electrónico\n- CURP\n- entidad federativa\n- teléfono\n- estatus actual de la cuenta\n- instancia asociada\n- configuración de 2FA\n- permisos organizados por grupo, módulo y acción\n\nUso principal:\nEste endpoint sirve para que el frontend pueda saber quién está autenticado\ny qué permisos tiene disponibles para habilitar o bloquear secciones del sistema.\n\nRequiere:\n- JWT válido.\n- Usuario activo.",
+        "operationId": "obtener_mi_usuario_users_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserWithPermissionsRead"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/me/cambiar-password": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Cambiar Mi Password",
+        "description": "Permite al usuario autenticado cambiar su propia contraseña.\n\nEste endpoint solo modifica la contraseña del usuario que inició sesión.\nNo permite modificar nombre, apellidos, correo, teléfono, CURP, estatus,\ninstancia ni permisos.\n\nReglas:\n- Requiere JWT válido.\n- Requiere usuario activo.\n- Requiere enviar la contraseña actual.\n- La contraseña actual debe ser correcta.\n- La nueva contraseña debe cumplir la política de seguridad.\n- La nueva contraseña no puede ser igual a la contraseña actual.\n\nComportamiento:\n- Guarda la nueva contraseña de forma hasheada.\n- Reinicia intentos_login a 0.\n- Incrementa token_version para invalidar sesiones activas.\n- El usuario deberá iniciar sesión nuevamente.\n\nBody esperado:\n{\n  \"password_actual\": \"PasswordAnterior123!\",\n  \"password_nueva\": \"PasswordNueva123!\"\n}",
+        "operationId": "cambiar_mi_password_users_me_cambiar_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambiarPasswordUsuario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/crear-password": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Crear Password Primera Vez",
+        "description": "Permite crear la contraseña por primera vez usando un token enviado por correo.\n\nEste endpoint se usa únicamente para usuarios nuevos que fueron creados por\nun administrador y que todavía no tienen contraseña configurada.\n\nFlujo esperado:\n1. El administrador crea el usuario.\n2. El administrador asigna permisos.\n3. El sistema envía un correo con un enlace de activación.\n4. El usuario abre el enlace y captura su nueva contraseña.\n5. El frontend envía a este endpoint el token y la contraseña nueva.\n6. El sistema valida el token, guarda la contraseña hasheada y elimina el token.\n\nEste endpoint no requiere JWT porque el usuario aún no puede iniciar sesión.\n\nReglas:\n- El token debe existir.\n- El token debe ser de tipo CREAR_CONTRASENA.\n- El token no debe estar expirado.\n- El usuario no debe tener una contraseña previamente configurada.\n- La contraseña debe cumplir la política de seguridad definida en el schema.\n\nAl finalizar:\n- Se guarda la contraseña hasheada.\n- Se reinician los intentos de login.\n- Se elimina el token para que no pueda reutilizarse.",
+        "operationId": "crear_password_primera_vez_users_crear_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearPasswordPrimeraVez"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/reenviar-activacion": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Reenviar Activacion Usuario",
+        "description": "Reenvía el correo de activación para que un usuario cree su contraseña.\n\nReglas:\n- SUPER_ADMIN / Dios puede reenviar activación a cualquier usuario.\n- Un administrador normal solo puede reenviar activación a usuarios que\n  pertenezcan a los grupos donde él tenga permiso administrativo.\n- El administrador debe tener ACTUALIZAR_USUARIO.\n- Si intenta operar sobre un usuario fuera de su alcance, el sistema responde 403.\n- Solo aplica para usuarios que todavía no tienen contraseña configurada.\n\nPermiso requerido:\n- ACTUALIZAR_USUARIO",
+        "operationId": "reenviar_activacion_usuario_users__user_id__reenviar_activacion_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/enviar-recuperacion-password": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Enviar Recuperacion Password Usuario",
+        "description": "Envía al usuario un correo para restablecer su contraseña.\n\nEste endpoint solo puede ejecutarlo un administrador o usuario autorizado.\nSe usa cuando el usuario notificó al administrador que olvidó su contraseña.\n\nReglas de alcance:\n- SUPER_ADMIN / Dios puede enviar recuperación de contraseña a cualquier usuario.\n- Un administrador normal solo puede enviar recuperación a usuarios que\n  pertenezcan a sus grupos administrables.\n- El administrador debe tener ACTUALIZAR_USUARIO.\n- Si intenta operar sobre un usuario fuera de su alcance, el sistema responde 403.\n\nFlujo:\n1. El usuario solicita apoyo al administrador.\n2. El administrador entra al sistema.\n3. El administrador ejecuta este endpoint sobre el usuario correspondiente.\n4. El sistema valida que el administrador pueda operar sobre ese usuario.\n5. El sistema genera un token temporal de recuperación.\n6. Se envía un correo al usuario con un enlace.\n7. El usuario debe usar el enlace antes de 24 horas.\n8. El usuario captura una nueva contraseña.\n9. El sistema actualiza la contraseña y elimina el token.\n\nReglas:\n- El usuario debe existir.\n- El usuario debe tener contraseña previamente configurada.\n- Si ya existía un token anterior de recuperación, se elimina.\n- Solo queda válido el enlace más reciente.\n- No se devuelve el token en la respuesta por seguridad.\n\nPermiso requerido:\n- ACTUALIZAR_USUARIO",
+        "operationId": "enviar_recuperacion_password_usuario_users__user_id__enviar_recuperacion_password_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/catalogo-permisos": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Listar Catalogo Permisos",
+        "description": "Devuelve el catálogo completo de permisos disponible en el sistema.\n\nLa respuesta está organizada jerárquicamente:\n\nGrupo\n  -> Módulos\n      -> Acciones\n\nUso principal:\nEste endpoint sirve para que el frontend pueda mostrar un árbol de permisos\ny permitir al administrador seleccionar qué accesos asignar a un usuario.\n\nEjemplo de uso:\n- Mostrar grupos como MP, MH, VF o RNCAS.\n- Mostrar módulos asociados a cada grupo.\n- Mostrar acciones específicas de cada módulo.\n\nEste endpoint no asigna permisos.\nSolo consulta el catálogo disponible.\n\nPermiso requerido:\n- VER_USUARIOS",
+        "operationId": "listar_catalogo_permisos_users_catalogo_permisos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GrupoCatalogoRead"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Catalogo Permisos Users Catalogo Permisos Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/catalogo-permisos/{grupo_id}": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Obtener Catalogo Permisos Por Grupo",
+        "description": "Devuelve el catálogo de permisos de un grupo específico.\n\nLa respuesta incluye:\n- datos del grupo\n- módulos pertenecientes al grupo\n- acciones disponibles dentro de cada módulo\n\nUso principal:\nSirve cuando el frontend necesita cargar únicamente los permisos de un sistema\nespecífico, por ejemplo solo MP, solo MH, solo VF o solo RNCAS.\n\nParámetros:\n- grupo_id: identificador UUID del grupo que se desea consultar.\n\nSi el grupo no existe, el servicio devuelve error 404.\n\nPermiso requerido:\n- VER_USUARIOS",
+        "operationId": "obtener_catalogo_permisos_por_grupo_users_catalogo_permisos__grupo_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "grupo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Grupo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrupoCatalogoRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/estatus/{estatus_id}": {
+      "patch": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Cambiar Estatus Usuario",
+        "description": "Cambia el estatus de un usuario usando el catálogo cat_estatus_usuarios.\n\nReglas:\n- SUPER_ADMIN / Dios puede cambiar el estatus de cualquier usuario.\n- Un administrador normal solo puede cambiar el estatus de usuarios que\n  pertenezcan a sus grupos administrables.\n- El administrador debe tener ACTUALIZAR_USUARIO.\n- Si intenta cambiar el estatus de un usuario fuera de su alcance,\n  el sistema responde 403.\n\nComportamiento:\n- Cambia el estatus del usuario.\n- Si el nuevo estatus es Activo, reinicia intentos_login a 0.\n- Incrementa token_version para invalidar sesiones activas.\n- Envía correo al usuario notificando el cambio de estatus.\n\nPermiso requerido:\n- ACTUALIZAR_USUARIO",
+        "operationId": "cambiar_estatus_usuario_users__user_id__estatus__estatus_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "estatus_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Estatus Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "patch": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Modificar Usuario",
+        "description": "Modifica datos administrativos de un usuario.\n\nEste endpoint es usado por administradores para corregir o actualizar datos\nde una cuenta existente.\n\nPermite actualizar:\n- nombre\n- primer_apellido\n- segundo_apellido\n- correo_electronico\n- CURP\n- entidad_federativa_id\n- numero_telefono\n- estatus_id\n- instancia_id\n\nNo permite actualizar:\n- contraseña\n- permisos\n- grupos\n- módulos\n- acciones\n- secreto 2FA\n- tokens\n\nLa contraseña se maneja en flujos separados:\n- creación de contraseña por primera vez\n- recuperación de contraseña\n- cambio de contraseña desde /users/me\n\nValidaciones:\n- El correo no debe estar registrado en otro usuario.\n- La CURP no debe estar registrada en otro usuario.\n\nPermiso requerido:\n- ACTUALIZAR_USUARIO",
+        "operationId": "modificar_usuario_users__user_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Obtener Usuario Por Id",
+        "description": "Consulta un usuario específico por su ID.\n\nReglas:\n- SUPER_ADMIN / Dios puede consultar cualquier usuario.\n- Un administrador normal solo puede consultar usuarios que pertenezcan\n  a sus grupos administrables.\n- El administrador debe tener VER_USUARIO_DETALLE.\n- Si intenta consultar un usuario fuera de su alcance, el sistema responde 403.\n\nDevuelve información detallada del usuario, incluyendo sus permisos asignados\norganizados por grupo, módulo y acción.\n\nPermiso requerido:\n- VER_USUARIO_DETALLE",
+        "operationId": "obtener_usuario_por_id_users__user_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserWithPermissionsRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/permisos": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Asignar Permisos Masivos Usuario",
+        "description": "Asigna permisos a un usuario de forma masiva.\n\nEste endpoint permite otorgar accesos a un usuario sin tener que llamar\nindividualmente a los endpoints de grupos, módulos y acciones.\n\nPermite asignar:\n- Un grupo directo mediante grupo_id.\n- Varios módulos mediante modulo_ids.\n- Varias acciones mediante accion_ids.\n\nFuncionamiento jerárquico:\n- Si se envía grupo_id, se asigna ese grupo al usuario.\n- Si se envían modulo_ids, el sistema asigna automáticamente el grupo padre\n  de cada módulo.\n- Si se envían accion_ids, el sistema asigna automáticamente:\n    1. La acción.\n    2. El módulo padre de esa acción.\n    3. El grupo padre de ese módulo.\n\nEsto significa que no es obligatorio enviar grupo_id si se están enviando\nmódulos o acciones, ya que el backend puede detectar sus grupos padre.\n\nEjemplo 1: asignar solo un grupo\n{\n  \"grupo_id\": \"uuid-del-grupo\",\n  \"modulo_ids\": [],\n  \"accion_ids\": []\n}\n\nEjemplo 2: asignar un grupo con varios módulos\n{\n  \"grupo_id\": \"uuid-del-grupo\",\n  \"modulo_ids\": [\n    \"uuid-modulo-1\",\n    \"uuid-modulo-2\"\n  ],\n  \"accion_ids\": []\n}\n\nEjemplo 3: asignar varios grupos indirectamente\nSi se desea asignar más de un grupo en una sola petición, se debe enviar\ngrupo_id como null y mandar módulos o acciones pertenecientes a distintos\ngrupos.\n\n{\n  \"grupo_id\": null,\n  \"modulo_ids\": [\n    \"uuid-modulo-del-grupo-mp\",\n    \"uuid-modulo-del-grupo-mh\"\n  ],\n  \"accion_ids\": []\n}\n\nEn ese caso el backend asignará automáticamente ambos grupos al usuario,\nporque cada módulo pertenece a un grupo distinto.\n\nEjemplo 4: asignar acciones\n{\n  \"grupo_id\": null,\n  \"modulo_ids\": [],\n  \"accion_ids\": [\n    \"uuid-accion-1\",\n    \"uuid-accion-2\",\n    \"uuid-accion-3\"\n  ]\n}\n\nEn este caso el backend asignará las acciones indicadas y también asignará\nautomáticamente los módulos y grupos correspondientes.\n\nReglas de seguridad:\n- SUPER_ADMIN / Dios puede asignar permisos de cualquier grupo.\n- Un administrador de registro solo puede asignar permisos dentro de los\n  grupos donde tenga permiso administrativo.\n- Si intenta asignar permisos de un grupo que no administra, el sistema debe\n  responder 403.\n- La acción SUPER_ADMIN solo puede ser asignada por un usuario que ya sea\n  SUPER_ADMIN.\n- Ningún administrador normal puede otorgar permisos de Dios.\n\nComportamiento con duplicados:\n- Si el usuario ya tiene asignado un grupo, módulo o acción, no se duplica.\n- El endpoint puede usarse para agregar nuevos permisos sin borrar los\n  permisos anteriores.\n\nEnvío de correo:\n- Este endpoint también forma parte del flujo de activación de cuenta.\n- Si el usuario todavía no tiene contraseña configurada, después de asignar\n  permisos el sistema envía el correo de bienvenida/activación.\n- Ese correo incluye el enlace para que el usuario cree su contraseña por\n  primera vez.\n- Si el usuario ya tiene contraseña, no se vuelve a enviar correo de\n  creación de contraseña.\n\nUso recomendado:\n- Crear primero el usuario con POST /users.\n- Después asignar sus permisos con POST /users/{user_id}/permisos.\n- Al asignar permisos, se activa el flujo de correo para creación de\n  contraseña, si aplica.\n\nPermiso requerido:\n- ASIGNAR_ACCIONES_USUARIO",
+        "operationId": "asignar_permisos_masivos_usuario_users__user_id__permisos_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioPermisosMasivosCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/grupos": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Asignar Grupo Usuario",
+        "description": "Asigna un grupo a un usuario.\n\nUn grupo representa un sistema o conjunto principal de permisos, por ejemplo:\nMP, MH, VF o RNCAS.\n\nEste endpoint solo crea la relación entre el usuario y el grupo.\nNo crea grupos nuevos en el catálogo.\n\nSi el usuario ya tiene asignado ese grupo, el servicio devuelve error de conflicto.\n\nUso recomendado:\nUtilizar este endpoint cuando se desea asignar únicamente el acceso general\na un grupo sin asignar módulos o acciones específicas.\n\nPara asignaciones completas se recomienda usar:\nPOST /users/{user_id}/permisos\n\nPermiso requerido:\n- ASIGNAR_GRUPOS_USUARIO",
+        "operationId": "asignar_grupo_usuario_users__user_id__grupos_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioGrupoCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioGrupoRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/modulos": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Asignar Modulo Usuario",
+        "description": "Asigna un módulo específico a un usuario.\n\nUn módulo representa una sección funcional dentro de un grupo o sistema.\n\nEste endpoint solo crea la relación entre el usuario y el módulo.\nNo crea módulos nuevos en el catálogo.\n\nSi el usuario ya tiene asignado ese módulo, el servicio devuelve error de conflicto.\n\nNota:\nEste endpoint no asigna automáticamente acciones internas del módulo.\nPara asignar acciones específicas debe usarse:\nPOST /users/{user_id}/acciones\n\nPara asignaciones jerárquicas automáticas se recomienda usar:\nPOST /users/{user_id}/permisos\n\nPermiso requerido:\n- ASIGNAR_MODULOS_USUARIO",
+        "operationId": "asignar_modulo_usuario_users__user_id__modulos_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioModuloCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioModuloRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/acciones": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Asignar Accion Usuario",
+        "description": "Asigna una acción específica a un usuario.\n\nUna acción representa un permiso puntual dentro de un módulo, por ejemplo:\ncrear, leer, editar, aprobar, devolver o administrar.\n\nEste endpoint solo crea la relación entre el usuario y la acción.\nNo crea acciones nuevas en el catálogo.\n\nSi el usuario ya tiene asignada esa acción, el servicio devuelve error de conflicto.\n\nUso principal:\nSirve para otorgar permisos específicos sin modificar todos los accesos del usuario.\n\nPara asignaciones jerárquicas automáticas se recomienda usar:\nPOST /users/{user_id}/permisos\n\nPermiso requerido:\n- ASIGNAR_ACCIONES_USUARIO",
+        "operationId": "asignar_accion_usuario_users__user_id__acciones_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioAccionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioAccionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/grupos/{grupo_id}": {
+      "delete": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Quitar Grupo Usuario",
+        "description": "Quita a un usuario el acceso a un grupo.\n\nEste endpoint elimina la relación entre el usuario y el grupo indicado.\nNo elimina el grupo del catálogo.\n\nComportamiento:\n- Elimina el grupo asignado al usuario.\n- Elimina los módulos asignados que pertenezcan a ese grupo.\n- Elimina las acciones asignadas que pertenezcan a módulos de ese grupo.\n- Incrementa token_version para invalidar sesiones activas.\n\nUso principal:\nSirve para retirar completamente el acceso de un usuario a un sistema.\n\nImportante:\nSi el usuario tenía sesión activa, deberá iniciar sesión nuevamente para que\nel cambio de permisos se refleje correctamente.\n\nPermiso requerido:\n- QUITAR_GRUPOS_USUARIO",
+        "operationId": "quitar_grupo_usuario_users__user_id__grupos__grupo_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "grupo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Grupo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/modulos/{modulo_id}": {
+      "delete": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Quitar Modulo Usuario",
+        "description": "Quita a un usuario el acceso a un módulo.\n\nEste endpoint elimina la relación entre el usuario y el módulo indicado.\nNo elimina el módulo del catálogo.\n\nComportamiento:\n- Elimina el módulo asignado al usuario.\n- Elimina las acciones asignadas que pertenezcan a ese módulo.\n- No elimina el grupo padre.\n- Incrementa token_version para invalidar sesiones activas.\n\nUso principal:\nSirve para retirar acceso a una sección específica de un sistema sin quitar\ncompletamente el grupo principal.\n\nPermiso requerido:\n- QUITAR_MODULOS_USUARIO",
+        "operationId": "quitar_modulo_usuario_users__user_id__modulos__modulo_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "modulo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Modulo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/acciones/{accion_id}": {
+      "delete": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Quitar Accion Usuario",
+        "description": "Quita a un usuario una acción específica.\n\nEste endpoint elimina únicamente la relación entre el usuario y la acción\nindicada. No elimina la acción del catálogo.\n\nComportamiento:\n- Elimina la acción asignada al usuario.\n- No elimina el módulo padre.\n- No elimina el grupo padre.\n- Incrementa token_version para invalidar sesiones activas.\n\nUso principal:\nSirve para retirar un permiso puntual sin afectar otros accesos del usuario.\n\nEjemplo:\nQuitar permiso para aprobar registros, pero conservar permisos de lectura\no edición.\n\nPermiso requerido:\n- QUITAR_ACCIONES_USUARIO",
+        "operationId": "quitar_accion_usuario_users__user_id__acciones__accion_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "accion_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Accion Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccionCatalogoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "AccionCatalogoRead"
+      },
+      "AccionPermisoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "AccionPermisoRead"
+      },
+      "AccionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "modulo_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Modulo Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "modulo_id"
+        ],
+        "title": "AccionRead"
+      },
+      "AccionUsuarioListRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "AccionUsuarioListRead"
+      },
+      "Body_login_access_token_auth_login_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_access_token_auth_login_post"
+      },
+      "CambiarPasswordUsuario": {
+        "properties": {
+          "password_actual": {
+            "type": "string",
+            "title": "Password Actual"
+          },
+          "password_nueva": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password Nueva"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password_actual",
+          "password_nueva"
+        ],
+        "title": "CambiarPasswordUsuario"
+      },
+      "CrearPasswordPrimeraVez": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "title": "CrearPasswordPrimeraVez"
+      },
+      "EstatusUsuarioRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "EstatusUsuarioRead"
+      },
+      "ExchangeCodeRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "ExchangeCodeRequest"
+      },
+      "GrupoCatalogoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "modulos": {
+            "items": {
+              "$ref": "#/components/schemas/ModuloCatalogoRead"
+            },
+            "type": "array",
+            "title": "Modulos",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "GrupoCatalogoRead"
+      },
+      "GrupoPermisoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "modulos": {
+            "items": {
+              "$ref": "#/components/schemas/ModuloPermisoRead"
+            },
+            "type": "array",
+            "title": "Modulos",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "GrupoPermisoRead"
+      },
+      "GrupoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "GrupoRead"
+      },
+      "GrupoUsuarioListRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "modulos": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ModuloUsuarioListRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modulos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "GrupoUsuarioListRead"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InstanciaRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "siglas": {
+            "type": "string",
+            "title": "Siglas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "siglas"
+        ],
+        "title": "InstanciaRead"
+      },
+      "ModuloCatalogoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "acciones": {
+            "items": {
+              "$ref": "#/components/schemas/AccionCatalogoRead"
+            },
+            "type": "array",
+            "title": "Acciones",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ModuloCatalogoRead"
+      },
+      "ModuloPermisoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "acciones": {
+            "items": {
+              "$ref": "#/components/schemas/AccionPermisoRead"
+            },
+            "type": "array",
+            "title": "Acciones",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ModuloPermisoRead"
+      },
+      "ModuloRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "grupo_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Grupo Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "grupo_id"
+        ],
+        "title": "ModuloRead"
+      },
+      "ModuloUsuarioListRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "acciones": {
+            "items": {
+              "$ref": "#/components/schemas/AccionUsuarioListRead"
+            },
+            "type": "array",
+            "title": "Acciones"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "ModuloUsuarioListRead"
+      },
+      "PermisosUsuarioRead": {
+        "properties": {
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/GrupoPermisoRead"
+            },
+            "type": "array",
+            "title": "Grupos",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "PermisosUsuarioRead"
+      },
+      "RedirectCodeRequest": {
+        "properties": {
+          "redirect_url": {
+            "type": "string",
+            "title": "Redirect Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "redirect_url"
+        ],
+        "title": "RedirectCodeRequest"
+      },
+      "RedirectCodeResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "expires_in"
+        ],
+        "title": "RedirectCodeResponse"
+      },
+      "RefreshTokenRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshTokenRequest"
+      },
+      "RestablecerPasswordRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "password_nueva": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password Nueva"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "password_nueva"
+        ],
+        "title": "RestablecerPasswordRequest"
+      },
+      "TempTokenRequest": {
+        "properties": {
+          "temp_token": {
+            "type": "string",
+            "title": "Temp Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "temp_token"
+        ],
+        "title": "TempTokenRequest"
+      },
+      "TempTokenVerifyRequest": {
+        "properties": {
+          "temp_token": {
+            "type": "string",
+            "title": "Temp Token"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 6,
+            "pattern": "^\\d{6}$",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "temp_token",
+          "code"
+        ],
+        "title": "TempTokenVerifyRequest"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token"
+        ],
+        "title": "Token"
+      },
+      "TwoFactorSetupRequiredResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "two_factor_setup_required",
+            "title": "Status",
+            "default": "two_factor_setup_required"
+          },
+          "temp_token": {
+            "type": "string",
+            "title": "Temp Token"
+          },
+          "temp_token_expires_in": {
+            "type": "integer",
+            "title": "Temp Token Expires In"
+          },
+          "two_factor_configured": {
+            "type": "boolean",
+            "const": false,
+            "title": "Two Factor Configured",
+            "default": false
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "temp_token",
+          "temp_token_expires_in",
+          "message"
+        ],
+        "title": "TwoFactorSetupRequiredResponse"
+      },
+      "TwoFactorSetupResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "two_factor_setup_required",
+            "title": "Status",
+            "default": "two_factor_setup_required"
+          },
+          "two_factor_configured": {
+            "type": "boolean",
+            "const": false,
+            "title": "Two Factor Configured",
+            "default": false
+          },
+          "qr_uri": {
+            "type": "string",
+            "title": "Qr Uri"
+          },
+          "manual_key": {
+            "type": "string",
+            "title": "Manual Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "qr_uri",
+          "manual_key"
+        ],
+        "title": "TwoFactorSetupResponse"
+      },
+      "TwoFactorVerificationRequiredResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "pending_2fa",
+            "title": "Status",
+            "default": "pending_2fa"
+          },
+          "temp_token": {
+            "type": "string",
+            "title": "Temp Token"
+          },
+          "temp_token_expires_in": {
+            "type": "integer",
+            "title": "Temp Token Expires In"
+          },
+          "two_factor_configured": {
+            "type": "boolean",
+            "const": true,
+            "title": "Two Factor Configured",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "temp_token",
+          "temp_token_expires_in",
+          "message"
+        ],
+        "title": "TwoFactorVerificationRequiredResponse"
+      },
+      "UserCreate": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Nombre"
+          },
+          "primer_apellido": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Primer Apellido"
+          },
+          "segundo_apellido": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segundo Apellido"
+          },
+          "correo_electronico": {
+            "type": "string",
+            "maxLength": 200,
+            "format": "email",
+            "title": "Correo Electronico"
+          },
+          "curp": {
+            "type": "string",
+            "maxLength": 18,
+            "minLength": 18,
+            "title": "Curp"
+          },
+          "entidad_federativa_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Entidad Federativa Id",
+            "description": "ID de la entidad federativa obtenido desde el catálogo externo"
+          },
+          "numero_telefono": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 15
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Telefono"
+          },
+          "estatus_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estatus Id"
+          },
+          "instancia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instancia Id"
+          },
+          "grupo_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Grupo Id",
+            "description": "ID del grupo/registro al que pertenecerá el usuario desde su creación"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "primer_apellido",
+          "correo_electronico",
+          "curp",
+          "entidad_federativa_id",
+          "grupo_id"
+        ],
+        "title": "UserCreate"
+      },
+      "UserListPublic": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "primer_apellido": {
+            "type": "string",
+            "title": "Primer Apellido"
+          },
+          "segundo_apellido": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segundo Apellido"
+          },
+          "correo_electronico": {
+            "type": "string",
+            "format": "email",
+            "title": "Correo Electronico"
+          },
+          "curp": {
+            "type": "string",
+            "title": "Curp"
+          },
+          "entidad_federativa_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entidad Federativa Id"
+          },
+          "numero_telefono": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Telefono"
+          },
+          "estatus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstatusUsuarioRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "instancia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InstanciaRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/GrupoUsuarioListRead"
+            },
+            "type": "array",
+            "title": "Grupos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "primer_apellido",
+          "correo_electronico",
+          "curp"
+        ],
+        "title": "UserListPublic"
+      },
+      "UserRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "primer_apellido": {
+            "type": "string",
+            "title": "Primer Apellido"
+          },
+          "segundo_apellido": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segundo Apellido"
+          },
+          "correo_electronico": {
+            "type": "string",
+            "format": "email",
+            "title": "Correo Electronico"
+          },
+          "curp": {
+            "type": "string",
+            "title": "Curp"
+          },
+          "entidad_federativa_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entidad Federativa Id"
+          },
+          "numero_telefono": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Telefono"
+          },
+          "is_2fa_enabled": {
+            "type": "boolean",
+            "title": "Is 2Fa Enabled"
+          },
+          "estatus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstatusUsuarioRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "instancia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InstanciaRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "intentos_login": {
+            "type": "integer",
+            "title": "Intentos Login"
+          },
+          "fecha_correo_verificado": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Correo Verificado"
+          },
+          "fecha_creacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Creacion"
+          },
+          "fecha_actualizacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Actualizacion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "primer_apellido",
+          "correo_electronico",
+          "curp",
+          "is_2fa_enabled",
+          "intentos_login",
+          "fecha_creacion",
+          "fecha_actualizacion"
+        ],
+        "title": "UserRead"
+      },
+      "UserUpdate": {
+        "properties": {
+          "nombre": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nombre"
+          },
+          "primer_apellido": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primer Apellido"
+          },
+          "segundo_apellido": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segundo Apellido"
+          },
+          "correo_electronico": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correo Electronico"
+          },
+          "curp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 18,
+                "minLength": 18
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curp"
+          },
+          "entidad_federativa_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entidad Federativa Id",
+            "description": "ID de la entidad federativa obtenido desde el catálogo externo"
+          },
+          "numero_telefono": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 15
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Telefono"
+          },
+          "estatus_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estatus Id"
+          },
+          "instancia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instancia Id"
+          }
+        },
+        "type": "object",
+        "title": "UserUpdate"
+      },
+      "UserWithPermissionsRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "primer_apellido": {
+            "type": "string",
+            "title": "Primer Apellido"
+          },
+          "segundo_apellido": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segundo Apellido"
+          },
+          "correo_electronico": {
+            "type": "string",
+            "format": "email",
+            "title": "Correo Electronico"
+          },
+          "curp": {
+            "type": "string",
+            "title": "Curp"
+          },
+          "entidad_federativa_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entidad Federativa Id"
+          },
+          "numero_telefono": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numero Telefono"
+          },
+          "is_2fa_enabled": {
+            "type": "boolean",
+            "title": "Is 2Fa Enabled"
+          },
+          "estatus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstatusUsuarioRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "instancia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InstanciaRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "intentos_login": {
+            "type": "integer",
+            "title": "Intentos Login"
+          },
+          "fecha_correo_verificado": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Correo Verificado"
+          },
+          "fecha_creacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Creacion"
+          },
+          "fecha_actualizacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Actualizacion"
+          },
+          "permisos": {
+            "$ref": "#/components/schemas/PermisosUsuarioRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "primer_apellido",
+          "correo_electronico",
+          "curp",
+          "is_2fa_enabled",
+          "intentos_login",
+          "fecha_creacion",
+          "fecha_actualizacion",
+          "permisos"
+        ],
+        "title": "UserWithPermissionsRead"
+      },
+      "UsuarioAccionCreate": {
+        "properties": {
+          "accion_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Accion Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accion_id"
+        ],
+        "title": "UsuarioAccionCreate"
+      },
+      "UsuarioAccionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "fecha_asignacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Asignacion"
+          },
+          "accion": {
+            "$ref": "#/components/schemas/AccionRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "fecha_asignacion",
+          "accion"
+        ],
+        "title": "UsuarioAccionRead"
+      },
+      "UsuarioGrupoCreate": {
+        "properties": {
+          "grupo_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Grupo Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "grupo_id"
+        ],
+        "title": "UsuarioGrupoCreate"
+      },
+      "UsuarioGrupoRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "fecha_asignacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Asignacion"
+          },
+          "grupo": {
+            "$ref": "#/components/schemas/GrupoRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "fecha_asignacion",
+          "grupo"
+        ],
+        "title": "UsuarioGrupoRead"
+      },
+      "UsuarioModuloCreate": {
+        "properties": {
+          "modulo_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Modulo Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "modulo_id"
+        ],
+        "title": "UsuarioModuloCreate"
+      },
+      "UsuarioModuloRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "fecha_asignacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Asignacion"
+          },
+          "modulo": {
+            "$ref": "#/components/schemas/ModuloRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "fecha_asignacion",
+          "modulo"
+        ],
+        "title": "UsuarioModuloRead"
+      },
+      "UsuarioPermisosMasivosCreate": {
+        "properties": {
+          "grupo_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grupo Id"
+          },
+          "modulo_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Modulo Ids",
+            "default": []
+          },
+          "accion_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Accion Ids",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "UsuarioPermisosMasivosCreate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Configuración del Ecosistema Integral DGCP">
+  <rect width="64" height="64" rx="14" fill="#a85400"/>
+  <path d="M32 14a5 5 0 0 1 4.8 3.6l.7 2.5 2.4 1.4 2.5-.7a5 5 0 0 1 5.7 2.4l2 3.5a5 5 0 0 1-.9 6.2l-1.9 1.8v2.8l1.9 1.8a5 5 0 0 1 .9 6.2l-2 3.5a5 5 0 0 1-5.7 2.4l-2.5-.7-2.4 1.4-.7 2.5A5 5 0 0 1 32 58h-4a5 5 0 0 1-4.8-3.6l-.7-2.5-2.4-1.4-2.5.7a5 5 0 0 1-5.7-2.4l-2-3.5a5 5 0 0 1 .9-6.2l1.9-1.8v-2.8l-1.9-1.8a5 5 0 0 1-.9-6.2l2-3.5a5 5 0 0 1 5.7-2.4l2.5.7 2.4-1.4.7-2.5A5 5 0 0 1 28 14h4Z" fill="#fff" opacity=".95"/>
+  <circle cx="30" cy="36" r="8" fill="#a85400"/>
+  <circle cx="30" cy="36" r="3" fill="#e47a00"/>
+</svg>

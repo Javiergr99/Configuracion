@@ -1,0 +1,31 @@
+:root {
+  --ui-primary: #a85400;
+  --ui-primary-hover: #8f4700;
+  --ui-primary-active: #753a00;
+  --ui-primary-soft: #f8f1eb;
+  --ui-secondary: #92400e;
+  --ui-accent: #e47a00;
+  --ui-canvas: #f4f7fb;
+  --ui-surface: #ffffff;
+  --ui-elevated: #ffffff;
+  --ui-header: #ffffff;
+  --ui-sidebar: #a85400;
+  --ui-field-bg: #ffffff;
+  --ui-sidebar-text: #ffffff;
+  --ui-text-primary: #111827;
+  --ui-text-secondary: #64748b;
+  --ui-text-disabled: #94a3b8;
+  --ui-text-on-primary: #ffffff;
+  --ui-border: #dce3ec;
+  --ui-success: #10b981;
+  --ui-warning: #f59e0b;
+  --ui-danger: #ef4444;
+  --ui-info: #3b82f6;
+  --ui-font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  --ui-heading-weight: 700;
+  --ui-body-weight: 400;
+  --ui-card-radius: 12px;
+  --ui-control-radius: 8px;
+  --ui-card-shadow: 0 1px 2px rgb(15 23 42 / 0.03);
+  --ui-focus-ring: rgb(168 84 0 / 0.22);
+}

@@ -1,0 +1,15 @@
+ENTREGA — CONTRATO TÉCNICO VIGENTE DE ADMINISTRACIÓN DE USUARIOS
+
+Archivos:
+- Contrato_Tecnico_Vigente_Administracion_Usuarios_Auth_Service_v1.0.docx
+- openapi.json
+- matriz_endpoint_permiso.json
+- catalogo_estatus_usuario.json
+- catalogo_errores_vigente.json
+- contratos_typescript_vigentes.ts
+
+Para exportar el OpenAPI directamente desde la instancia local en ejecución:
+PowerShell:
+Invoke-WebRequest -Uri "http://127.0.0.1:8001/openapi.json" -OutFile ".\openapi.json"
+
+El archivo exportado desde la instancia en ejecución debe considerarse la copia oficial si existiera alguna diferencia con el snapshot entregado.

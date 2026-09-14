@@ -1,0 +1,136 @@
+[
+  {
+    "method": "GET",
+    "path": "/users",
+    "required_actions": [
+      "VER_USUARIOS"
+    ],
+    "additional_scope": "SUPER_ADMIN ve todos; administrador ordinario ve usuarios que comparten al menos un grupo donde el actor tenga ADMINISTRAR_USUARIOS."
+  },
+  {
+    "method": "GET",
+    "path": "/users/me",
+    "required_actions": [],
+    "additional_scope": "Requiere access_token válido y usuario con estatus Activo."
+  },
+  {
+    "method": "GET",
+    "path": "/users/{user_id}",
+    "required_actions": [
+      "VER_USUARIO_DETALLE"
+    ],
+    "additional_scope": "SUPER_ADMIN puede consultar cualquier usuario; actor ordinario solo usuarios dentro de sus grupos administrables."
+  },
+  {
+    "method": "POST",
+    "path": "/users",
+    "required_actions": [
+      "CREAR_USUARIO"
+    ],
+    "additional_scope": "Además valida CREAR_USUARIO dentro del grupo_id solicitado, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/{user_id}",
+    "required_actions": [
+      "ACTUALIZAR_USUARIO"
+    ],
+    "additional_scope": "Usuario objetivo dentro de grupos administrables, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "PATCH",
+    "path": "/users/{user_id}/estatus/{estatus_id}",
+    "required_actions": [
+      "ACTUALIZAR_USUARIO"
+    ],
+    "additional_scope": "Usuario objetivo dentro de grupos administrables, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/reenviar-activacion",
+    "required_actions": [
+      "ACTUALIZAR_USUARIO"
+    ],
+    "additional_scope": "Usuario objetivo dentro de grupos administrables, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/enviar-recuperacion-password",
+    "required_actions": [
+      "ACTUALIZAR_USUARIO"
+    ],
+    "additional_scope": "Usuario objetivo dentro de grupos administrables, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "GET",
+    "path": "/users/catalogo-permisos",
+    "required_actions": [
+      "VER_USUARIOS"
+    ],
+    "additional_scope": "SUPER_ADMIN recibe todos los grupos; actor ordinario solo grupos donde tenga ADMINISTRAR_USUARIOS."
+  },
+  {
+    "method": "GET",
+    "path": "/users/catalogo-permisos/{grupo_id}",
+    "required_actions": [
+      "VER_USUARIOS"
+    ],
+    "additional_scope": "Además valida VER_USUARIOS dentro del grupo solicitado, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/permisos",
+    "required_actions": [
+      "ASIGNAR_ACCIONES_USUARIO"
+    ],
+    "additional_scope": "Valida ASIGNAR_ACCIONES_USUARIO en cada grupo inferido o enviado, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/grupos",
+    "required_actions": [
+      "ASIGNAR_GRUPOS_USUARIO"
+    ],
+    "additional_scope": "Valida ASIGNAR_GRUPOS_USUARIO en el grupo solicitado, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/modulos",
+    "required_actions": [
+      "ASIGNAR_MODULOS_USUARIO"
+    ],
+    "additional_scope": "Valida ASIGNAR_MODULOS_USUARIO en el grupo padre del módulo, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "POST",
+    "path": "/users/{user_id}/acciones",
+    "required_actions": [
+      "ASIGNAR_ACCIONES_USUARIO"
+    ],
+    "additional_scope": "Valida ASIGNAR_ACCIONES_USUARIO en el grupo padre; SUPER_ADMIN solo puede asignarlo otro SUPER_ADMIN."
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/{user_id}/grupos/{grupo_id}",
+    "required_actions": [
+      "QUITAR_GRUPOS_USUARIO"
+    ],
+    "additional_scope": "Valida QUITAR_GRUPOS_USUARIO en el grupo solicitado, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/{user_id}/modulos/{modulo_id}",
+    "required_actions": [
+      "QUITAR_MODULOS_USUARIO"
+    ],
+    "additional_scope": "Valida QUITAR_MODULOS_USUARIO en el grupo padre, salvo SUPER_ADMIN."
+  },
+  {
+    "method": "DELETE",
+    "path": "/users/{user_id}/acciones/{accion_id}",
+    "required_actions": [
+      "QUITAR_ACCIONES_USUARIO"
+    ],
+    "additional_scope": "Valida QUITAR_ACCIONES_USUARIO en el grupo padre, salvo SUPER_ADMIN."
+  }
+]

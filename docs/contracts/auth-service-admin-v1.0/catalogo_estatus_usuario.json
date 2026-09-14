@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "Activo",
+    "permite_login": true,
+    "comportamiento": "Único estatus aceptado para login y endpoints protegidos. Al asignarlo se reinicia intentos_login a 0."
+  },
+  {
+    "id": 2,
+    "nombre": "En Proceso",
+    "permite_login": false,
+    "comportamiento": "Impide login y acceso a endpoints que requieren usuario activo."
+  },
+  {
+    "id": 3,
+    "nombre": "Inactivo",
+    "permite_login": false,
+    "comportamiento": "Impide login y acceso a endpoints que requieren usuario activo."
+  },
+  {
+    "id": 4,
+    "nombre": "Intentos en exceso sesión",
+    "permite_login": false,
+    "comportamiento": "Impide login. Se asigna automáticamente al llegar a 5 intentos fallidos."
+  }
+]

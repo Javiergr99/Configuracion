@@ -1,0 +1,265 @@
+@import "tailwindcss";
+@import "./design-tokens.css";
+
+@theme {
+  --font-sans: var(--ui-font-family);
+  --color-brand-50: var(--ui-primary-soft);
+  --color-brand-100: color-mix(in srgb, var(--ui-primary) 16%, white);
+  --color-brand-200: color-mix(in srgb, var(--ui-primary) 30%, white);
+  --color-brand-300: color-mix(in srgb, var(--ui-primary) 55%, white);
+  --color-brand-500: color-mix(in srgb, var(--ui-primary) 82%, white);
+  --color-brand-600: var(--ui-primary);
+  --color-brand-700: var(--ui-primary-hover);
+  --color-brand-800: var(--ui-primary-active);
+  --color-sidebar: var(--ui-sidebar);
+  --color-canvas: var(--ui-canvas);
+}
+
+:root {
+  font-family: var(--ui-font-family);
+  color: var(--ui-text-primary);
+  background: var(--ui-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --header-height: 64px;
+  --sidebar-collapsed-width: 56px;
+  --sidebar-expanded-width: 224px;
+  --sidebar-current-width: var(--sidebar-expanded-width);
+
+  /*
+   * El contenido principal se mantiene centrado, pero con un ancho de trabajo
+   * considerablemente mayor para aprovechar pantallas de escritorio amplias.
+   * La variable es compartida por todos los módulos de la aplicación.
+   */
+  --app-content-max-width: 1680px;
+  --app-content-gap: 20px;
+  --app-content-gutter: clamp(18px, 1.8vw, 30px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-weight: var(--ui-body-weight);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong {
+  font-weight: var(--ui-heading-weight);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+::selection {
+  color: color-mix(in srgb, var(--ui-primary) 35%, black);
+  background: color-mix(in srgb, var(--ui-primary) 20%, white);
+}
+
+.app-content-shell {
+  width: min(100%, var(--app-content-max-width));
+  margin-inline: auto;
+  padding: 22px var(--app-content-gutter) 36px;
+}
+
+.app-page {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--app-content-gap);
+}
+
+.app-content-actions {
+  width: min(100%, var(--app-content-max-width));
+  margin-inline: auto;
+  padding-inline: var(--app-content-gutter);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --sidebar-collapsed-width: 52px;
+    --sidebar-current-width: var(--sidebar-collapsed-width);
+    --app-content-gap: 16px;
+    --app-content-gutter: 14px;
+  }
+
+  .app-content-shell {
+    padding-top: 14px;
+  }
+}
+
+.app-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.app-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.app-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.app-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.7s linear infinite;
+}
+
+@keyframes profile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes profile-menu-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-3px) scale(0.985);
+  }
+}
+
+.profile-menu-content[data-state="open"] {
+  animation: profile-menu-in 140ms ease-out;
+}
+
+.profile-menu-content[data-state="closed"] {
+  animation: profile-menu-out 100ms ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-menu-content[data-state="open"],
+  .profile-menu-content[data-state="closed"] {
+    animation: none;
+  }
+}
+
+.profile-data-grid > * {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.profile-data-grid > *:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .profile-data-grid > * {
+    border-right: 1px solid var(--ui-border);
+  }
+
+  .profile-data-grid > *:nth-child(2n),
+  .profile-data-grid > *.sm\:col-span-2 {
+    border-right: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-data-grid > *:nth-child(2n) {
+    border-right: 1px solid var(--ui-border);
+  }
+
+  .profile-data-grid > *:nth-child(3n),
+  .profile-data-grid > *.lg\:col-span-3 {
+    border-right: 0;
+  }
+}
+
+.profile-permission-item {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.profile-permission-item:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .profile-permission-item {
+    border-right: 1px solid var(--ui-border);
+  }
+
+  .profile-permission-item:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-permission-item:nth-child(2n) {
+    border-right: 1px solid var(--ui-border);
+  }
+
+  .profile-permission-item:nth-child(3n) {
+    border-right: 0;
+  }
+}
+
+/* Configuración visual: distribución aprobada en Figma, acotada al main. */
+.appearance-settings-page {
+  --settings-preview-min-width: 360px;
+}
+
+@media (min-width: 1280px) {
+  .appearance-settings-page {
+    gap: 16px;
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "format": {
+    "code": "string",
+    "detail": "string",
+    "errors": "unknown[] opcional; solo validación 422",
+    "field_errors": "Declarado por frontend, pero el handler actual no lo emite"
+  },
+  "status_default_codes": {
+    "400": "BAD_REQUEST",
+    "401": "UNAUTHORIZED",
+    "403": "FORBIDDEN",
+    "404": "NOT_FOUND",
+    "409": "CONFLICT",
+    "422": "VALIDATION_ERROR",
+    "429": "TOO_MANY_REQUESTS"
+  },
+  "notes": [
+    "En los endpoints administrativos actuales, la mayoría de HTTPException usa detail como texto; por ello el code es genérico según el HTTP status.",
+    "Los errores de validación Pydantic devuelven code=VALIDATION_ERROR, detail y errors[].",
+    "No existe actualmente un catálogo de códigos específicos como USER_NOT_FOUND o EMAIL_ALREADY_EXISTS para estas rutas.",
+    "Errores SMTP no controlados pueden responder 500 con el comportamiento por defecto del servidor."
+  ],
+  "common_messages": [
+    {
+      "code": "UNAUTHORIZED",
+      "messages": [
+        "No se pudieron validar las credenciales.",
+        "Esta sesión ha sido revocada por cambios en la cuenta. Por favor, inicia sesión de nuevo.",
+        "Token inválido al validar permisos."
+      ]
+    },
+    {
+      "code": "FORBIDDEN",
+      "messages": [
+        "El usuario no está activo.",
+        "No tienes permiso para ejecutar la acción solicitada.",
+        "No tienes permiso para realizar esta acción dentro de este registro.",
+        "No tienes permiso para operar sobre este usuario.",
+        "No tienes grupos administrables.",
+        "Solo el super usuario puede asignar permisos SUPER_ADMIN."
+      ]
+    },
+    {
+      "code": "NOT_FOUND",
+      "messages": [
+        "Usuario no encontrado.",
+        "Grupo no encontrado.",
+        "Módulo no encontrado.",
+        "Acción no encontrada.",
+        "Estatus de usuario no encontrado.",
+        "El usuario no tiene asignado el recurso solicitado."
+      ]
+    },
+    {
+      "code": "CONFLICT",
+      "messages": [
+        "El correo ya está registrado en el sistema.",
+        "La CURP ya está registrada en el sistema.",
+        "El usuario ya tiene asignado ese grupo, módulo o acción."
+      ]
+    },
+    {
+      "code": "BAD_REQUEST",
+      "messages": [
+        "El usuario ya tiene una contraseña configurada.",
+        "El usuario aún no tiene contraseña configurada. Debe usar el flujo de activación de cuenta.",
+        "El módulo o acción no pertenece al grupo indicado.",
+        "Debes enviar al menos un grupo, módulo o acción para asignar permisos."
+      ]
+    }
+  ]
+}
