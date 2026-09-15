@@ -70,7 +70,7 @@ export function getAdminUserProtectionMessage({
   }
 
   if (superAdminTarget) {
-    return "Este usuario tiene SUPER_ADMIN y permanece protegido hasta que backend publique las salvaguardas administrativas correspondientes.";
+    return "La edición general de una cuenta SUPER_ADMIN permanece restringida en Configuración. Administra sus accesos desde la sección de permisos; auth_service aplica las salvaguardas administrativas.";
   }
 
   return "No cuentas con permisos suficientes para editar este usuario.";

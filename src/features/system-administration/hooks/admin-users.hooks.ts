@@ -130,6 +130,10 @@ export function useUpdatePermissionsMutation() {
     mutationFn: ({ id, input }: { id: string; input: AdminPermissionUpdateInput }) =>
       adminUsersService.updatePermissions(id, input),
     onSuccess: async (result) => {
+      if (result.requiresReauthentication) {
+        return;
+      }
+
       queryClient.setQueryData(adminUsersKeys.detail(result.user.id), result.user);
 
       await queryClient.invalidateQueries({

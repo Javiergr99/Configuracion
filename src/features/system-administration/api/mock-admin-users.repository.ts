@@ -488,6 +488,7 @@ export class MockAdminUsersRepository implements AdminUsersRepository {
       user: updated,
       complete: true,
       completedOperations: countPermissionChanges(input.original, input.next),
+      requiresReauthentication: false,
     };
   }
 }

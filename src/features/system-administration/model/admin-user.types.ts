@@ -149,6 +149,7 @@ export type PermissionUpdateResult = {
   user: AdminUser;
   complete: boolean;
   completedOperations: number;
+  requiresReauthentication: boolean;
   warning?: string;
 };
 

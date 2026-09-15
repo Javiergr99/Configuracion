@@ -1,13 +1,12 @@
 import type {
-  AddUserActionRequest,
   AddUserGroupRequest,
-  AddUserModuleRequest,
   AdminEmailResponse,
   AssignInitialPermissionsRequest,
   AssignInitialPermissionsResponse,
   CreateUserRequest,
   GetUsersResponse,
   PermissionCatalogResponse,
+  UpdatePermissionsDeltaResponse,
   UpdateUserRequest,
   UserRead,
   UserWithPermissionsRead,
@@ -15,6 +14,7 @@ import type {
 import { AdminApiError } from "@/features/system-administration/api/admin-api-error";
 import { AuthApiError, authRequest } from "@/features/auth/api/auth-client";
 import type { AdminUsersRepository } from "@/features/system-administration/api/admin-users.repository";
+import { mapPermissionPlanToDeltaRequest } from "@/features/system-administration/api/permission-delta.mapper";
 import {
   mapAdminUserDetail,
   mapAdminUserListItem,
@@ -25,8 +25,6 @@ import {
 import {
   buildPermissionOperationPlan,
   getPermissionParentMaps,
-  permissionOperationSequence,
-  type PermissionOperationStep,
 } from "@/features/system-administration/model/permission-operation-plan";
 import { buildInitialPermissionAssignmentPlan } from "@/features/system-administration/model/initial-permission-assignment";
 import {
@@ -206,70 +204,6 @@ function updateRequest(input: UpdateAdminUserInput): UpdateUserRequest {
   return body;
 }
 
-type SequentialTask = () => Promise<unknown>;
-
-/**
- * Ejecuta tareas en el mismo orden en que fueron registradas.
- *
- * La cadena de promesas mantiene la semántica secuencial del contrato
- * administrativo: si una operación falla, las siguientes no se ejecutan.
- */
-function runSequentialTasks(tasks: SequentialTask[], onCompleted: () => void): Promise<void> {
-  return tasks.reduce<Promise<void>>(
-    (chain, task) =>
-      chain
-        .then(() => task())
-        .then(() => {
-          onCompleted();
-        }),
-    Promise.resolve(),
-  );
-}
-
-function taskForPermissionStep(id: string, step: PermissionOperationStep): SequentialTask {
-  switch (step.kind) {
-    case "groupsToAdd":
-      return () =>
-        request(`/users/${id}/grupos`, {
-          method: "POST",
-          body: JSON.stringify({
-            grupo_id: step.id,
-          } satisfies AddUserGroupRequest),
-        });
-
-    case "modulesToAdd":
-      return () =>
-        request(`/users/${id}/modulos`, {
-          method: "POST",
-          body: JSON.stringify({
-            modulo_id: step.id,
-          } satisfies AddUserModuleRequest),
-        });
-
-    case "actionsToAdd":
-      return () =>
-        request(`/users/${id}/acciones`, {
-          method: "POST",
-          body: JSON.stringify({
-            accion_id: step.id,
-          } satisfies AddUserActionRequest),
-        });
-
-    case "actionsToRemove":
-      return () => request(`/users/${id}/acciones/${step.id}`, { method: "DELETE" });
-
-    case "modulesToRemove":
-      return () => request(`/users/${id}/modulos/${step.id}`, { method: "DELETE" });
-
-    case "groupsToRemove":
-      return () => request(`/users/${id}/grupos/${step.id}`, { method: "DELETE" });
-  }
-}
-
-function buildPermissionTasks(id: string, plan: Parameters<typeof permissionOperationSequence>[0]) {
-  return permissionOperationSequence(plan).map((step) => taskForPermissionStep(id, step));
-}
-
 export class HttpAdminUsersRepository implements AdminUsersRepository {
   async listUsers(filters: AdminUserFilters): Promise<PaginatedAdminUsers> {
     const response = await request<GetUsersResponse>("/users");
@@ -429,14 +363,6 @@ export class HttpAdminUsersRepository implements AdminUsersRepository {
     const catalog = await this.getPermissionCatalog();
     const actor = await this.getCurrentUser();
 
-    if (actor.id === id) {
-      throw new AdminApiError(409, {
-        code: "FRONTEND_SELF_PERMISSION_GUARD",
-        detail:
-          "No puedes modificar tus propios accesos desde Configuración. Usa otra cuenta administrativa autorizada.",
-      });
-    }
-
     const maps = getPermissionParentMaps(catalog);
 
     const protectedSuperAdminIds = input.original.actionIds.filter(
@@ -478,32 +404,19 @@ export class HttpAdminUsersRepository implements AdminUsersRepository {
       });
     }
 
-    const tasks = buildPermissionTasks(id, plan);
+    const response = await request<UpdatePermissionsDeltaResponse>(`/users/${id}/permisos/delta`, {
+      method: "PATCH",
+      body: JSON.stringify(mapPermissionPlanToDeltaRequest(plan)),
+    });
 
-    let completedOperations = 0;
+    const requiresReauthentication = Boolean(response.requiere_reautenticacion);
+    const user = requiresReauthentication && actor.id === id ? actor : await this.getUser(id);
 
-    try {
-      await runSequentialTasks(tasks, () => {
-        completedOperations += 1;
-      });
-
-      return {
-        user: await this.getUser(id),
-        complete: true,
-        completedOperations,
-      };
-    } catch (error) {
-      const user = await this.getUser(id);
-
-      return {
-        user,
-        complete: false,
-        completedOperations,
-        warning:
-          error instanceof Error
-            ? `La actualización se detuvo después de ${completedOperations} operación(es): ${error.message}`
-            : "La actualización se detuvo y se recargó el estado real del servidor.",
-      };
-    }
+    return {
+      user,
+      complete: true,
+      completedOperations: response.total_operaciones,
+      requiresReauthentication,
+    };
   }
 }

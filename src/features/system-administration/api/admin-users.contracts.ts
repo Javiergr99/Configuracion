@@ -1,5 +1,5 @@
 /**
- * Contratos vigentes de Administración de usuarios — auth_service v1.0.
+ * Contratos vigentes de Administración de usuarios — auth_service v1.1.
  * Fuente de verdad: openapi.json y entrega técnica del backend del 06/08/2026.
  */
 export interface ApiError {
@@ -170,6 +170,34 @@ export interface AddUserModuleRequest {
 }
 export interface AddUserActionRequest {
   accion_id: string;
+}
+
+export interface UpdatePermissionsDeltaRequest {
+  grupo_ids_agregar: string[];
+  grupo_ids_quitar: string[];
+  modulo_ids_agregar: string[];
+  modulo_ids_quitar: string[];
+  accion_ids_agregar: string[];
+  accion_ids_quitar: string[];
+}
+
+export interface UpdatePermissionsDeltaOperations {
+  grupos_agregados: number;
+  grupos_quitados: number;
+  modulos_agregados: number;
+  modulos_quitados: number;
+  acciones_agregadas: number;
+  acciones_quitadas: number;
+}
+
+export interface UpdatePermissionsDeltaResponse {
+  message: string;
+  user_id: string;
+  operaciones: UpdatePermissionsDeltaOperations;
+  total_operaciones: number;
+  sesiones_invalidadas: boolean;
+  requiere_reautenticacion: boolean;
+  permisos: { grupos: GrupoPermisoRead[] };
 }
 
 export interface UsuarioGrupoRead {

@@ -1,4 +1,4 @@
-import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { SearchField } from "@/components/ui/search-field";
 import { getAdminErrorMessage } from "@/features/system-administration/api/admin-api-error";
+import { logoutCurrentSession } from "@/features/auth/services/session-commands";
 import { PermissionTree } from "@/features/system-administration/components/permission-tree";
 import {
   useAdminCurrentUser,
@@ -98,7 +99,7 @@ function PermissionDialogFooter({
       </Button>
       <Button onClick={onSave} disabled={disabled}>
         <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-        {busy ? "Aplicando operaciones..." : "Guardar permisos"}
+        {busy ? "Guardando cambios..." : "Guardar permisos"}
       </Button>
     </>
   );
@@ -173,16 +174,16 @@ function PermissionChangeSummary({
           <p className="text-[10px] font-semibold text-red-800">Por retirar</p>
         </div>
       </div>
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-900">
         <div className="flex items-center gap-2 font-bold">
-          <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-          Operación no atómica
+          <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+          Cambios preparados
         </div>
         <p className="mt-1">
-          auth_service aplica operaciones individuales. Configuración retira primero y agrega
-          después para priorizar mínimo privilegio; ante un fallo se recarga el estado real.
+          Los cambios se validan antes de guardarse y se aplican juntos para evitar estados
+          parciales.
         </p>
-        <p className="mt-2 font-semibold">Operaciones HTTP estimadas: {counts.operations}</p>
+        <p className="mt-2 font-semibold">Cambios planificados: {counts.operations}</p>
       </div>
     </>
   );
@@ -198,11 +199,11 @@ function PermissionScopeWarnings({
   return (
     <>
       {isSelfTarget ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800">
-          <p className="font-bold">Autoprotección administrativa</p>
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+          <p className="font-bold">Tu sesión se actualizará al guardar</p>
           <p className="mt-1">
-            Esta sesión no puede cambiar sus propios grupos, módulos o acciones. Utiliza otra cuenta
-            administrativa autorizada para evitar un bloqueo accidental.
+            Si modificas tus propios accesos, deberás iniciar sesión nuevamente para continuar. Tu
+            permiso SUPER_ADMIN permanecerá protegido.
           </p>
         </div>
       ) : null}
@@ -242,8 +243,8 @@ function PermissionDialogSidebar({
         missingRequirements={missingRequirements}
       />
       <p className="text-xs leading-5 text-[var(--ui-text-secondary)]">
-        Los permisos se validan por grupo antes de enviar cambios. auth_service vuelve a comprobar
-        el alcance en cada endpoint y sigue siendo la autoridad final.
+        Los permisos se validan antes de guardar. Si alguna combinación no está permitida, no se
+        aplicará ningún cambio.
       </p>
     </aside>
   );
@@ -253,15 +254,12 @@ async function savePermissionChanges({
   user,
   original,
   selection,
-  isSelfTarget,
   mutate,
-  onPartialState,
   onComplete,
 }: {
   user: AdminUser;
   original: PermissionSelection;
   selection: PermissionSelection;
-  isSelfTarget: boolean;
   mutate: (input: {
     id: string;
     input: { original: PermissionSelection; next: PermissionSelection };
@@ -269,16 +267,11 @@ async function savePermissionChanges({
     user: AdminUser;
     complete: boolean;
     completedOperations: number;
+    requiresReauthentication: boolean;
     warning?: string;
   }>;
-  onPartialState: (selection: PermissionSelection) => void;
   onComplete: () => void;
 }) {
-  if (isSelfTarget) {
-    toast.error("No puedes modificar tus propios accesos desde Configuración.");
-    return;
-  }
-
   if (permissionSelectionEquals(original, selection)) {
     toast.info("No hay cambios pendientes.");
     return;
@@ -288,16 +281,24 @@ async function savePermissionChanges({
     const result = await mutate({ id: user.id, input: { original, next: selection } });
 
     if (!result.complete) {
-      onPartialState(selectionFromUser(result.user));
       toast.warning(
-        result.warning ?? "La actualización fue parcial; se recargó el estado real del servidor.",
+        result.warning ?? "auth_service no confirmó la actualización completa de permisos.",
         { duration: 10000 },
       );
       return;
     }
 
+    if (result.requiresReauthentication) {
+      toast.success("Permisos actualizados. Por seguridad, debes iniciar sesión nuevamente.", {
+        duration: 6000,
+      });
+      onComplete();
+      await logoutCurrentSession("permissions-changed");
+      return;
+    }
+
     toast.success(
-      `Permisos actualizados mediante ${result.completedOperations} operación(es) vigentes.`,
+      `Permisos actualizados correctamente (${result.completedOperations} cambio(s) efectivo(s)).`,
     );
     onComplete();
   } catch (error) {
@@ -319,7 +320,7 @@ function AdminUserPermissionsDialogSession({
   const currentUserQuery = useAdminCurrentUser();
   const updateMutation = useUpdatePermissionsMutation();
   const [search, setSearch] = useState("");
-  const [original, setOriginal] = useState<PermissionSelection>(() => selectionFromUser(user));
+  const [original] = useState<PermissionSelection>(() => selectionFromUser(user));
   const [selection, setSelection] = useState<PermissionSelection>(() => selectionFromUser(user));
   const catalog = catalogQuery.data ?? EMPTY_PERMISSION_CATALOG;
   const actor = currentUserQuery.data;
@@ -345,7 +346,6 @@ function AdminUserPermissionsDialogSession({
     catalogQuery.isLoading ||
     currentUserQuery.isLoading ||
     unchanged ||
-    isSelfTarget ||
     missingRequirements.length > 0;
 
   const save = () =>
@@ -353,12 +353,7 @@ function AdminUserPermissionsDialogSession({
       user,
       original,
       selection,
-      isSelfTarget,
       mutate: updateMutation.mutateAsync,
-      onPartialState: (actual) => {
-        setOriginal(actual);
-        setSelection(actual);
-      },
       onComplete: () => onOpenChange(false),
     });
 

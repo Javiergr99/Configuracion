@@ -67,7 +67,7 @@ function canManageUserPermissions(
   actor: AdminUser | undefined,
   target: AdminUser | undefined,
 ): boolean {
-  if (!actor || !target || actor.id === target.id || isSuperAdmin(target)) return false;
+  if (!actor || !target) return false;
   return PERMISSION_MANAGEMENT_ACTIONS.some((action) => hasAdminAction(actor, action));
 }
 
@@ -137,13 +137,7 @@ function DrawerFooter({
   );
 }
 
-function UserSummaryTab({
-  user,
-  targetIsSuperAdmin,
-}: {
-  user: AdminUser;
-  targetIsSuperAdmin: boolean;
-}) {
+function UserSummaryTab({ user }: { user: AdminUser }) {
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between gap-4">
@@ -153,14 +147,6 @@ function UserSummaryTab({
         </div>
         <AdminUserStatusBadge status={user.status} />
       </div>
-
-      {targetIsSuperAdmin ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-          Este usuario tiene la acción SUPER_ADMIN. La edición de permisos y el cambio de estatus
-          permanecen bloqueados hasta que backend implemente la protección del último SUPER_ADMIN y
-          el auto-retiro.
-        </div>
-      ) : null}
 
       <dl className="grid gap-5 rounded-xl border border-[var(--ui-border)] p-5 sm:grid-cols-2">
         <Value label="CURP" value={user.curp} />
@@ -195,12 +181,10 @@ function PermissionGroupHeading({ group }: { group: AdminUser["permissionGroups"
 function UserPermissionsTab({
   user,
   canManagePermissions,
-  managementNotice,
   onManagePermissions,
 }: {
   user: AdminUser;
   canManagePermissions: boolean;
-  managementNotice?: string;
   onManagePermissions: () => void;
 }) {
   return (
@@ -240,12 +224,6 @@ function UserPermissionsTab({
           El usuario no tiene permisos jerárquicos asignados.
         </p>
       )}
-
-      {managementNotice ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-          {managementNotice}
-        </div>
-      ) : null}
 
       {canManagePermissions ? (
         <Button onClick={onManagePermissions}>
@@ -388,9 +366,7 @@ function UserActivityTab() {
 
 function AdminUserTabs({
   user,
-  targetIsSuperAdmin,
   canManagePermissions,
-  managementNotice,
   canEdit,
   nextStatusId,
   statusPending,
@@ -403,9 +379,7 @@ function AdminUserTabs({
   onRecovery,
 }: {
   user: AdminUser;
-  targetIsSuperAdmin: boolean;
   canManagePermissions: boolean;
-  managementNotice?: string;
   canEdit: boolean;
   nextStatusId: string;
   statusPending: boolean;
@@ -424,7 +398,7 @@ function AdminUserTabs({
         {
           value: "summary",
           label: "Resumen",
-          content: <UserSummaryTab user={user} targetIsSuperAdmin={targetIsSuperAdmin} />,
+          content: <UserSummaryTab user={user} />,
         },
         {
           value: "permissions",
@@ -433,7 +407,6 @@ function AdminUserTabs({
             <UserPermissionsTab
               user={user}
               canManagePermissions={canManagePermissions}
-              managementNotice={managementNotice}
               onManagePermissions={onManagePermissions}
             />
           ),
@@ -508,11 +481,6 @@ export function AdminUserDetailDrawer({
   const canEdit =
     hasAdminAction(actor, "ACTUALIZAR_USUARIO") && !targetIsSuperAdmin && !targetIsCurrentUser;
   const canManagePermissions = canManageUserPermissions(actor, user);
-  const managementNotice = targetIsCurrentUser
-    ? "No puedes modificar tus propios accesos desde esta sesión. Utiliza otra cuenta administrativa autorizada."
-    : targetIsSuperAdmin
-      ? "Los permisos de un SUPER_ADMIN permanecen protegidos hasta que backend publique salvaguardas de último superadministrador y auto-retiro."
-      : undefined;
 
   const closeDrawer = () => onOpenChange(false);
   const editUser = () => {
@@ -524,9 +492,7 @@ export function AdminUserDetailDrawer({
   const tabs = user ? (
     <AdminUserTabs
       user={user}
-      targetIsSuperAdmin={targetIsSuperAdmin}
       canManagePermissions={canManagePermissions}
-      managementNotice={managementNotice}
       canEdit={canEdit}
       nextStatusId={nextStatusId}
       statusPending={statusMutation.isPending}

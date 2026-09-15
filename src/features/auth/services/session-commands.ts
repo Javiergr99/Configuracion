@@ -8,7 +8,7 @@ export const AUTH_CHANNEL = "ecosistema-configuracion-auth-session";
 
 export type SessionMessage = {
   type: "logout";
-  reason: "manual" | "inactivity" | "session-expired";
+  reason: "manual" | "inactivity" | "session-expired" | "permissions-changed";
 };
 
 export async function logoutCurrentSession(reason: SessionMessage["reason"] = "manual") {

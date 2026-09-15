@@ -1,4 +1,4 @@
-# Contrato vigente de Administración — auth_service v1.0
+# Contrato vigente de Administración — auth_service v1.1
 
 Este documento resume el contrato utilizado por el adaptador HTTP del frontend. No sustituye al OpenAPI entregado por backend.
 
@@ -17,6 +17,7 @@ Este documento resume el contrato utilizado por el adaptador HTTP del frontend. 
 - `PATCH /users/{user_id}` → `UserRead`.
 - `PATCH /users/{user_id}/estatus/{estatus_id}` → `UserRead`.
 - `GET /users/catalogo-permisos` → `GrupoCatalogoRead[]`.
+- `PATCH /users/{user_id}/permisos/delta` → actualización atómica de grupos, módulos y acciones.
 
 ## Formato de errores
 
@@ -48,7 +49,7 @@ La implementación vigente emite el error en el nivel superior, no dentro de `de
 | Ver detalle                | `VER_USUARIO_DETALLE`      |
 | Crear usuario              | `CREAR_USUARIO`            |
 | Editar usuario             | `ACTUALIZAR_USUARIO`       |
-| Cambiar estatus            | `ACTUALIZAR_USUARIO`       |
+| Cambiar estatus            | `DESACTIVAR_USUARIO`       |
 | Reenviar activación        | `ACTUALIZAR_USUARIO`       |
 | Enviar recuperación        | `ACTUALIZAR_USUARIO`       |
 | Asignar permisos iniciales | `ASIGNAR_ACCIONES_USUARIO` |
@@ -60,3 +61,22 @@ La implementación vigente emite el error en el nivel superior, no dentro de `de
 | Retirar acción             | `QUITAR_ACCIONES_USUARIO`  |
 
 El alcance administrativo vigente se calcula por grupos. `SUPER_ADMIN` omite el alcance ordinario; los demás actores administran grupos donde poseen `ADMINISTRAR_USUARIOS`.
+
+## DELTA atómico de permisos
+
+`PATCH /users/{user_id}/permisos/delta` recibe en una sola petición las altas y bajas calculadas por Configuración:
+
+```json
+{
+  "grupo_ids_agregar": [],
+  "grupo_ids_quitar": [],
+  "modulo_ids_agregar": [],
+  "modulo_ids_quitar": [],
+  "accion_ids_agregar": [],
+  "accion_ids_quitar": []
+}
+```
+
+El backend valida el DELTA completo antes de escribir, protege `SUPER_ADMIN` y aplica los cambios dentro de una transacción. Cuando el actor modifica sus propios permisos y hubo cambios efectivos, la respuesta indica `requiere_reautenticacion=true`; el frontend finaliza la operación y fuerza una nueva autenticación.
+
+La acción `SUPER_ADMIN` del propio usuario permanece bloqueada en la interfaz como protección adicional. La autoridad final sigue siendo `auth_service`.
