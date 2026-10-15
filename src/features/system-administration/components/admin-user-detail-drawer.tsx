@@ -27,8 +27,8 @@ import {
   useResendActivationMutation,
 } from "@/features/system-administration/hooks/admin-users.hooks";
 import {
+  getAdminUserSecurityCapabilities,
   hasAdminAction,
-  isSuperAdmin,
 } from "@/features/system-administration/model/admin-authorization";
 import {
   ADMIN_STATUS_CATALOG,
@@ -259,6 +259,7 @@ function SecurityItem({
 function UserSecurityTab({
   user,
   canEdit,
+  canSendPasswordRecovery,
   nextStatusId,
   statusPending,
   resendPending,
@@ -270,6 +271,7 @@ function UserSecurityTab({
 }: {
   user: AdminUser;
   canEdit: boolean;
+  canSendPasswordRecovery: boolean;
   nextStatusId: string;
   statusPending: boolean;
   resendPending: boolean;
@@ -304,7 +306,11 @@ function UserSecurityTab({
           <Button variant="secondary" onClick={onActivation} disabled={!canEdit || resendPending}>
             <MailCheck className="h-4 w-4" aria-hidden="true" /> Reenviar activación
           </Button>
-          <Button variant="secondary" onClick={onRecovery} disabled={!canEdit || recoveryPending}>
+          <Button
+            variant="secondary"
+            onClick={onRecovery}
+            disabled={!canSendPasswordRecovery || recoveryPending}
+          >
             <RotateCcwKey className="h-4 w-4" aria-hidden="true" /> Recuperar contraseña
           </Button>
         </div>
@@ -368,6 +374,7 @@ function AdminUserTabs({
   user,
   canManagePermissions,
   canEdit,
+  canSendPasswordRecovery,
   nextStatusId,
   statusPending,
   resendPending,
@@ -381,6 +388,7 @@ function AdminUserTabs({
   user: AdminUser;
   canManagePermissions: boolean;
   canEdit: boolean;
+  canSendPasswordRecovery: boolean;
   nextStatusId: string;
   statusPending: boolean;
   resendPending: boolean;
@@ -418,6 +426,7 @@ function AdminUserTabs({
             <UserSecurityTab
               user={user}
               canEdit={canEdit}
+              canSendPasswordRecovery={canSendPasswordRecovery}
               nextStatusId={nextStatusId}
               statusPending={statusPending}
               resendPending={resendPending}
@@ -476,10 +485,7 @@ export function AdminUserDetailDrawer({
   const [nextStatusId, setNextStatusId] = useState("1");
   const user = query.data;
   const actor = currentUserQuery.data;
-  const targetIsSuperAdmin = isSuperAdmin(user);
-  const targetIsCurrentUser = Boolean(actor && user && actor.id === user.id);
-  const canEdit =
-    hasAdminAction(actor, "ACTUALIZAR_USUARIO") && !targetIsSuperAdmin && !targetIsCurrentUser;
+  const { canEdit, canSendPasswordRecovery } = getAdminUserSecurityCapabilities(actor, user);
   const canManagePermissions = canManageUserPermissions(actor, user);
 
   const closeDrawer = () => onOpenChange(false);
@@ -494,6 +500,7 @@ export function AdminUserDetailDrawer({
       user={user}
       canManagePermissions={canManagePermissions}
       canEdit={canEdit}
+      canSendPasswordRecovery={canSendPasswordRecovery}
       nextStatusId={nextStatusId}
       statusPending={statusMutation.isPending}
       resendPending={resend.isPending}
