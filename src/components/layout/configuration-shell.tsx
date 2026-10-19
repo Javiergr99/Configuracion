@@ -1,15 +1,28 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
 
 import { ConfigurationHeader } from "@/components/layout/configuration-header";
 import { ConfigurationSidebar } from "@/components/layout/configuration-sidebar";
+import { MobileModuleNavigation } from "@/components/layout/mobile-module-navigation";
 import { useAuthStore } from "@/features/auth/model/auth.store";
 import { getSessionActionNames } from "@/features/auth/services/jwt-actions";
 
 export function ConfigurationShell() {
   const location = useLocation();
+  const [navigationOpen, setNavigationOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const permissions = useMemo(() => getSessionActionNames(user), [user]);
+
+  useEffect(() => {
+    const closeOnDesktop = () => {
+      if (window.innerWidth >= 1024) {
+        setNavigationOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", closeOnDesktop);
+    return () => window.removeEventListener("resize", closeOnDesktop);
+  }, []);
 
   useEffect(() => {
     document.getElementById("app-scroll-container")?.scrollTo({
@@ -20,8 +33,13 @@ export function ConfigurationShell() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-canvas" data-sidebar-expanded="true">
-      <ConfigurationHeader />
+      <ConfigurationHeader onOpenNavigation={() => setNavigationOpen(true)} />
       <ConfigurationSidebar permissions={permissions} />
+      <MobileModuleNavigation
+        open={navigationOpen}
+        onOpenChange={setNavigationOpen}
+        permissions={permissions}
+      />
 
       <main
         id="app-scroll-container"
