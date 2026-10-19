@@ -14,11 +14,12 @@ import { cn } from "@/shared/lib/cn";
 type ConfigurationSidebarProps = {
   permissions?: readonly string[];
   onNavigate?: () => void;
+  variant?: "desktop" | "drawer";
 };
 
 const EMPTY_PERMISSIONS: readonly string[] = [];
 const PRIMARY_ITEM_CLASS =
-  "focus-ring flex min-h-10 w-full items-center justify-center overflow-hidden rounded-md px-2 text-[13px] leading-5 font-semibold text-[var(--ui-sidebar-text)] transition-colors hover:bg-black/10 hover:text-[var(--ui-sidebar-text)] md:justify-start md:gap-2.5 md:px-3";
+  "focus-ring flex min-h-10 w-full items-center overflow-hidden rounded-md text-[13px] leading-5 font-semibold text-[var(--ui-sidebar-text)] transition-colors hover:bg-black/10 hover:text-[var(--ui-sidebar-text)]";
 const PRIMARY_ICON_CLASS = "h-[17px] w-[17px] shrink-0";
 const PRIMARY_LABEL_CLASS = "font-sans text-[13px] font-semibold leading-5 tracking-normal";
 
@@ -37,6 +38,7 @@ function isGroupRouteActive(item: NavigationItem, pathname: string): boolean {
 export function ConfigurationSidebar({
   permissions = EMPTY_PERMISSIONS,
   onNavigate,
+  variant = "desktop",
 }: ConfigurationSidebarProps) {
   const location = useLocation();
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
@@ -77,7 +79,12 @@ export function ConfigurationSidebar({
 
   return (
     <aside
-      className="fixed bottom-0 left-0 top-[var(--header-height)] z-30 w-[var(--sidebar-current-width)] overflow-x-hidden overflow-y-auto border-r border-black/10 bg-[var(--ui-sidebar)] px-2 py-3"
+      className={cn(
+        "overflow-x-hidden overflow-y-auto border-r border-black/10 bg-[var(--ui-sidebar)] px-2 py-3",
+        variant === "drawer"
+          ? "h-full w-full"
+          : "fixed bottom-0 left-0 top-[var(--header-height)] z-30 hidden w-[var(--sidebar-current-width)] lg:block",
+      )}
       aria-label="Navegación lateral de configuración"
     >
       <nav className="space-y-1" aria-label="Módulos de configuración">
@@ -98,6 +105,9 @@ export function ConfigurationSidebar({
                   onClick={() => toggleGroup(item.label)}
                   className={cn(
                     PRIMARY_ITEM_CLASS,
+                    variant === "drawer"
+                      ? "justify-start gap-2.5 px-3"
+                      : "justify-center px-2 md:justify-start md:gap-2.5 md:px-3",
                     active &&
                       "bg-[var(--ui-primary-soft)] text-[var(--ui-primary)] hover:bg-[var(--ui-primary-soft)] hover:text-[var(--ui-primary)]",
                   )}
@@ -108,14 +118,17 @@ export function ConfigurationSidebar({
                   <span
                     className={cn(
                       PRIMARY_LABEL_CLASS,
-                      "hidden min-w-0 flex-1 truncate whitespace-nowrap text-left md:block",
+                      variant === "drawer"
+                        ? "min-w-0 flex-1 truncate whitespace-nowrap text-left"
+                        : "hidden min-w-0 flex-1 truncate whitespace-nowrap text-left md:block",
                     )}
                   >
                     {item.label}
                   </span>
                   <ChevronDown
                     className={cn(
-                      "ml-auto hidden h-4 w-4 shrink-0 transition-transform md:block",
+                      "ml-auto h-4 w-4 shrink-0 transition-transform",
+                      variant === "desktop" && "hidden md:block",
                       open && "rotate-180",
                     )}
                     aria-hidden="true"
@@ -123,7 +136,14 @@ export function ConfigurationSidebar({
                 </button>
 
                 {open ? (
-                  <div className="mt-1 space-y-1 md:ml-6 md:border-l md:border-white/25 md:pl-2">
+                  <div
+                    className={cn(
+                      "mt-1 space-y-1",
+                      variant === "drawer"
+                        ? "ml-6 border-l border-white/25 pl-2"
+                        : "md:ml-6 md:border-l md:border-white/25 md:pl-2",
+                    )}
+                  >
                     {children.map((child) => {
                       const ChildIcon = child.icon ?? Dot;
 
@@ -136,8 +156,10 @@ export function ConfigurationSidebar({
                           title={child.label}
                           className={({ isActive }) =>
                             cn(
-                              "focus-ring flex min-h-9 items-center justify-center rounded-md px-2 text-[12px] font-medium text-[var(--ui-sidebar-text)] transition-colors hover:bg-black/10 hover:text-[var(--ui-sidebar-text)]",
-                              "md:justify-start md:gap-1.5",
+                              "focus-ring flex min-h-9 items-center rounded-md px-2 text-[12px] font-medium text-[var(--ui-sidebar-text)] transition-colors hover:bg-black/10 hover:text-[var(--ui-sidebar-text)]",
+                              variant === "drawer"
+                                ? "justify-start gap-1.5"
+                                : "justify-center md:justify-start md:gap-1.5",
                               isActive &&
                                 "bg-[var(--ui-primary-soft)] font-semibold text-[var(--ui-primary)]",
                             )
@@ -148,7 +170,14 @@ export function ConfigurationSidebar({
                             strokeWidth={1.8}
                             aria-hidden="true"
                           />
-                          <span className="hidden min-w-0 truncate md:block">{child.label}</span>
+                          <span
+                            className={cn(
+                              "min-w-0 truncate",
+                              variant === "desktop" && "hidden md:block",
+                            )}
+                          >
+                            {child.label}
+                          </span>
                         </NavLink>
                       );
                     })}
@@ -170,6 +199,9 @@ export function ConfigurationSidebar({
               className={({ isActive }) =>
                 cn(
                   PRIMARY_ITEM_CLASS,
+                  variant === "drawer"
+                    ? "justify-start gap-2.5 px-3"
+                    : "justify-center px-2 md:justify-start md:gap-2.5 md:px-3",
                   isActive &&
                     "bg-[var(--ui-primary-soft)] text-[var(--ui-primary)] hover:bg-[var(--ui-primary-soft)] hover:text-[var(--ui-primary)]",
                 )
@@ -179,7 +211,9 @@ export function ConfigurationSidebar({
               <span
                 className={cn(
                   PRIMARY_LABEL_CLASS,
-                  "hidden min-w-0 flex-1 truncate whitespace-nowrap text-left md:block",
+                  variant === "drawer"
+                    ? "min-w-0 flex-1 truncate whitespace-nowrap text-left"
+                    : "hidden min-w-0 flex-1 truncate whitespace-nowrap text-left md:block",
                 )}
               >
                 {item.label}

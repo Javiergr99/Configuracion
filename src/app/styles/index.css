@@ -104,13 +104,19 @@ button:not(:disabled),
 @media (max-width: 767px) {
   :root {
     --sidebar-collapsed-width: 52px;
-    --sidebar-current-width: var(--sidebar-collapsed-width);
+    --sidebar-current-width: 0px;
     --app-content-gap: 16px;
     --app-content-gutter: 14px;
   }
 
   .app-content-shell {
     padding-top: 14px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --sidebar-current-width: 0px;
   }
 }
 
