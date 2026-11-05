@@ -26,29 +26,9 @@ const PRESENTATIONS: Record<string, Omit<PermissionGroupPresentation, "technical
     scope: "Acceso general al sistema",
     family: "control-agenda",
   },
-  SEMAFORO_ADMIN: {
+  SEMAFORO: {
     title: "Control Agenda Nacional",
-    scope: "Administrador global",
-    family: "control-agenda",
-  },
-  SEMAFORO_DGRJRDNNA: {
-    title: "Control Agenda Nacional",
-    scope: "DGRJRDNNA",
-    family: "control-agenda",
-  },
-  SEMAFORO_DGRCAS: {
-    title: "Control Agenda Nacional",
-    scope: "DGRCAS",
-    family: "control-agenda",
-  },
-  SEMAFORO_DGNPDDNNA: {
-    title: "Control Agenda Nacional",
-    scope: "DGNPDDNNA",
-    family: "control-agenda",
-  },
-  SEMAFORO_DGCP: {
-    title: "Control Agenda Nacional",
-    scope: "DGCP",
+    scope: "Administración, direcciones generales y permisos",
     family: "control-agenda",
   },
   CRONOS: {

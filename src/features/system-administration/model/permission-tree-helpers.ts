@@ -30,6 +30,9 @@ export function permissionGroupDescendants(
 
   for (const module of group.modules) {
     if (!module.assignable) continue;
+    // La administracion global de Semaforo exige seleccion explicita
+    // del modulo. No se concede al marcar el grupo principal.
+    if (group.name === "SEMAFORO" && module.name === "SEMAFORO_ADMIN") continue;
 
     moduleIds.push(module.id);
 
