@@ -29,6 +29,7 @@ import {
   missingScopedRequirementsForInitialPermissionPlan,
 } from "@/features/system-administration/model/permission-scope";
 import { emptyPermissionSelection } from "@/features/system-administration/model/permission-selection";
+import { unifiedSemaforoCatalogForNewUsers } from "@/features/system-administration/model/unified-semaforo-catalog";
 import { FEDERAL_ENTITY_CATALOG, getFederalEntityName } from "@/shared/catalogs/federal-entities";
 
 const EMPTY_PERMISSION_CATALOG: PermissionCatalogGroup[] = [];
@@ -280,7 +281,10 @@ export function useAdminUserCreateWizard() {
     },
   });
 
-  const catalog = catalogQuery.data ?? EMPTY_PERMISSION_CATALOG;
+  const catalog = useMemo(
+    () => unifiedSemaforoCatalogForNewUsers(catalogQuery.data ?? EMPTY_PERMISSION_CATALOG),
+    [catalogQuery.data],
+  );
 
   const actorCanAssignSuperAdmin = isSuperAdmin(currentUserQuery.data);
 

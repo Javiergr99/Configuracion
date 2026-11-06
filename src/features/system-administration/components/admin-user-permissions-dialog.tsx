@@ -31,6 +31,7 @@ import {
   type ScopedPermissionRequirement,
 } from "@/features/system-administration/model/permission-scope";
 import { permissionSelectionEquals } from "@/features/system-administration/model/permission-selection";
+import { unifiedSemaforoCatalogForDisplay } from "@/features/system-administration/model/unified-semaforo-catalog";
 
 const EMPTY_PERMISSION_CATALOG: PermissionCatalogGroup[] = [];
 
@@ -323,6 +324,7 @@ function AdminUserPermissionsDialogSession({
   const [original] = useState<PermissionSelection>(() => selectionFromUser(user));
   const [selection, setSelection] = useState<PermissionSelection>(() => selectionFromUser(user));
   const catalog = catalogQuery.data ?? EMPTY_PERMISSION_CATALOG;
+  const visibleCatalog = useMemo(() => unifiedSemaforoCatalogForDisplay(catalog), [catalog]);
   const actor = currentUserQuery.data;
   const actorCanAssignSuperAdmin = isSuperAdmin(actor);
   const isSelfTarget = actor?.id === user.id;
@@ -378,7 +380,7 @@ function AdminUserPermissionsDialogSession({
           search={search}
           onSearchChange={setSearch}
           loading={catalogQuery.isLoading}
-          catalog={catalog}
+          catalog={visibleCatalog}
           selection={selection}
           onSelectionChange={setSelection}
           lockedActionIds={lockedActionIds}
@@ -388,7 +390,7 @@ function AdminUserPermissionsDialogSession({
           counts={counts}
           isSelfTarget={isSelfTarget}
           missingRequirements={missingRequirements}
-        />
+          />
       </div>
     </Dialog>
   );

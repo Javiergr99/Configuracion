@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeading } from "@/components/ui/page-heading";
 import { usePermissionCatalog } from "@/features/system-administration/hooks/admin-users.hooks";
+import { unifiedSemaforoCatalogForDisplay } from "@/features/system-administration/model/unified-semaforo-catalog";
 
 export function PermissionCatalogPage() {
   const catalogQuery = usePermissionCatalog();
+  const displayCatalog = unifiedSemaforoCatalogForDisplay(catalogQuery.data ?? []);
 
   return (
     <div className="app-page">
@@ -35,7 +37,7 @@ export function PermissionCatalogPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {(catalogQuery.data ?? []).map((group) => (
+          {displayCatalog.map((group) => (
             <Card key={group.id} className="overflow-hidden p-0">
               <div className="flex items-center gap-3 border-b border-[var(--ui-border)] px-5 py-4">
                 <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-50 text-[var(--ui-primary)]">
