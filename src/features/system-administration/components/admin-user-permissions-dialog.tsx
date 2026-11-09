@@ -32,6 +32,10 @@ import {
 } from "@/features/system-administration/model/permission-scope";
 import { permissionSelectionEquals } from "@/features/system-administration/model/permission-selection";
 import { unifiedSemaforoCatalogForDisplay } from "@/features/system-administration/model/unified-semaforo-catalog";
+import {
+  groupOnlyMemberships,
+  removeGroupFromSelection,
+} from "@/features/system-administration/model/group-only-memberships";
 
 const EMPTY_PERMISSION_CATALOG: PermissionCatalogGroup[] = [];
 
@@ -58,21 +62,16 @@ function permissionChangeCounts(plan: PermissionOperationPlan): PermissionChange
 function lockedSuperAdminActions({
   catalog,
   actorCanAssignSuperAdmin,
-  originalActionIds,
 }: {
   catalog: PermissionCatalogGroup[];
   actorCanAssignSuperAdmin: boolean;
-  originalActionIds: Set<string>;
 }) {
   const lockedIds = new Set<string>();
 
   for (const group of catalog) {
     for (const module of group.modules) {
       for (const action of module.actions) {
-        if (
-          action.name === "SUPER_ADMIN" &&
-          (!actorCanAssignSuperAdmin || originalActionIds.has(action.id))
-        ) {
+        if (action.name === "SUPER_ADMIN" && !actorCanAssignSuperAdmin) {
           lockedIds.add(action.id);
         }
       }
@@ -123,6 +122,8 @@ function PermissionEditorPane({
   onSelectionChange: (next: PermissionSelection) => void;
   lockedActionIds: Set<string>;
 }) {
+  const membershipOnlyGroups = groupOnlyMemberships(catalog, selection);
+
   return (
     <div>
       <SearchField
@@ -144,6 +145,27 @@ function PermissionEditorPane({
           />
         )}
       </div>
+        {!loading && membershipOnlyGroups.length > 0 ? (
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-950">
+            <p className="font-semibold">Grupos asignados sin permisos individuales</p>
+            <p className="mt-1">
+              La pertenencia a estos grupos puede otorgar acceso aunque no tengan módulos ni
+              acciones seleccionados. Si el usuario ya no debe conservarlos, quítalos de la
+              selección y después guarda los cambios.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {membershipOnlyGroups.map((group) => (
+                <Button
+                  key={group.id}
+                  variant="secondary"
+                  onClick={() => onSelectionChange(removeGroupFromSelection(selection, group))}
+                >
+                  Quitar {group.name} de la selección
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : null}
     </div>
   );
 }
@@ -204,7 +226,7 @@ function PermissionScopeWarnings({
           <p className="font-bold">Tu sesión se actualizará al guardar</p>
           <p className="mt-1">
             Si modificas tus propios accesos, deberás iniciar sesión nuevamente para continuar. Tu
-            permiso SUPER_ADMIN permanecerá protegido.
+            permiso SUPER_ADMIN puede retirarse si queda otro administrador activo. El último permanece protegido.
           </p>
         </div>
       ) : null}
@@ -328,10 +350,9 @@ function AdminUserPermissionsDialogSession({
   const actor = currentUserQuery.data;
   const actorCanAssignSuperAdmin = isSuperAdmin(actor);
   const isSelfTarget = actor?.id === user.id;
-  const originalActionIds = useMemo(() => new Set(original.actionIds), [original.actionIds]);
   const lockedActionIds = useMemo(
-    () => lockedSuperAdminActions({ catalog, actorCanAssignSuperAdmin, originalActionIds }),
-    [actorCanAssignSuperAdmin, catalog, originalActionIds],
+    () => lockedSuperAdminActions({ catalog, actorCanAssignSuperAdmin }),
+    [actorCanAssignSuperAdmin, catalog],
   );
   const plan = useMemo(
     () => buildPermissionOperationPlan(original, selection, catalog),

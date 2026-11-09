@@ -193,12 +193,7 @@ function UserPermissionsTab({
         user.permissionGroups.map((group) => (
           <section key={group.id} className="rounded-xl border border-[var(--ui-border)] p-4">
             <PermissionGroupHeading group={group} />
-            <div className="mt-3 space-y-3">
-              {group.modules.length === 0 ? (
-                <p className="rounded-lg bg-slate-50 p-3 text-xs text-[var(--ui-text-secondary)]">
-                  Acceso general al sistema o grupo, sin módulos o acciones directas asignadas.
-                </p>
-              ) : null}
+            <div className={group.modules.length > 0 ? "mt-3 space-y-3" : ""}>
               {group.modules.map((module) => (
                 <div key={module.id} className="rounded-lg bg-slate-50 p-3">
                   <p className="text-xs font-semibold text-[var(--ui-text-primary)]">
