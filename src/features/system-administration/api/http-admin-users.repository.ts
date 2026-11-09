@@ -24,7 +24,6 @@ import {
 } from "@/features/system-administration/model/admin-user.mapper";
 import {
   buildPermissionOperationPlan,
-  getPermissionParentMaps,
 } from "@/features/system-administration/model/permission-operation-plan";
 import { buildInitialPermissionAssignmentPlan } from "@/features/system-administration/model/initial-permission-assignment";
 import {
@@ -363,32 +362,12 @@ export class HttpAdminUsersRepository implements AdminUsersRepository {
     const catalog = await this.getPermissionCatalog();
     const actor = await this.getCurrentUser();
 
-    const maps = getPermissionParentMaps(catalog);
-
-    const protectedSuperAdminIds = input.original.actionIds.filter(
-      (actionId) => maps.actionName.get(actionId) === "SUPER_ADMIN",
-    );
-
-    const nextGroupIds = new Set(input.next.groupIds);
-    const nextModuleIds = new Set(input.next.moduleIds);
-    const nextActionIds = new Set([...input.next.actionIds, ...protectedSuperAdminIds]);
-
-    for (const actionId of protectedSuperAdminIds) {
-      const moduleId = maps.actionToModule.get(actionId);
-      const groupId = maps.actionToGroup.get(actionId);
-
-      if (moduleId) {
-        nextModuleIds.add(moduleId);
-      }
-      if (groupId) {
-        nextGroupIds.add(groupId);
-      }
-    }
-
+    // Respetar la elección real del administrador: tampoco reponer SUPER_ADMIN.
+    // El backend protege exclusivamente al último superadministrador activo.
     const next: PermissionSelection = {
-      groupIds: [...nextGroupIds],
-      moduleIds: [...nextModuleIds],
-      actionIds: [...nextActionIds],
+      groupIds: [...new Set(input.next.groupIds)],
+      moduleIds: [...new Set(input.next.moduleIds)],
+      actionIds: [...new Set(input.next.actionIds)],
     };
 
     const plan = buildPermissionOperationPlan(input.original, next, catalog);

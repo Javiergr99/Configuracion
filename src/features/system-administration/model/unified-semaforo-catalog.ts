@@ -1,18 +1,41 @@
 import type { PermissionCatalogGroup } from "@/features/system-administration/model/admin-user.types";
 
 /**
- * El backend publica solo el grupo canónico SEMAFORO.
- * No se ocultan grupos ni se reescriben UUID: un catálogo inesperado
- * debe permanecer visible para su auditoría, nunca maquillarse en la UI.
+ * Grupos heredados conservados en Auth por compatibilidad.
+ * No deben ofrecerse para nuevas asignaciones.
  */
+const LEGACY_SEMAFORO_GROUPS = new Set([
+  "SEMAFORO_ADMIN",
+  "SEMAFORO_DGCP",
+  "SEMAFORO_DGNPDDNNA",
+  "SEMAFORO_DGRCAS",
+  "SEMAFORO_DGRJRDNNA",
+]);
+
+function filterLegacySemaforoGroups(
+  catalog: PermissionCatalogGroup[],
+): PermissionCatalogGroup[] {
+  const hasCanonicalGroup = catalog.some(
+    (group) => group.name.trim().toUpperCase() === "SEMAFORO",
+  );
+
+  // No ocultar catalogos inesperados si falta el canonico.
+  if (!hasCanonicalGroup) return catalog;
+
+  return catalog.filter(
+    (group) =>
+      !LEGACY_SEMAFORO_GROUPS.has(group.name.trim().toUpperCase()),
+  );
+}
+
 export function unifiedSemaforoCatalogForDisplay(
   catalog: PermissionCatalogGroup[],
 ): PermissionCatalogGroup[] {
-  return catalog;
+  return filterLegacySemaforoGroups(catalog);
 }
 
 export function unifiedSemaforoCatalogForNewUsers(
   catalog: PermissionCatalogGroup[],
 ): PermissionCatalogGroup[] {
-  return catalog;
+  return filterLegacySemaforoGroups(catalog);
 }
