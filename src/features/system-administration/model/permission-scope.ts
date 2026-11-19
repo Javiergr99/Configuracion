@@ -104,9 +104,17 @@ export function actorHasScopedAction(
   actionName: string,
 ): boolean {
   if (!actor) return false;
-  if (actor.permissions.includes("SUPER_ADMIN")) return true;
 
-  return actorScope(actor).get(groupId)?.has(actionName.trim().toUpperCase()) ?? false;
+  const requiredAction = actionName.trim().toUpperCase();
+
+  // SUPER_ADMIN amplía el alcance, no restituye acciones retiradas.
+  if (actor.permissions.includes("SUPER_ADMIN")) {
+    return actor.permissions.some(
+      (permission) => permission.trim().toUpperCase() === requiredAction,
+    );
+  }
+
+  return actorScope(actor).get(groupId)?.has(requiredAction) ?? false;
 }
 
 function missingRequirements(
@@ -114,13 +122,20 @@ function missingRequirements(
   actor: AdminUser | undefined,
 ): ScopedPermissionRequirement[] {
   if (!actor) return requirements;
-  if (actor.permissions.includes("SUPER_ADMIN")) return [];
 
   const scope = actorScope(actor);
+  const hasSuperAdmin = actor.permissions.includes("SUPER_ADMIN");
+  const explicitActions = new Set(
+    actor.permissions.map((permission) => permission.trim().toUpperCase()),
+  );
   const missing: ScopedPermissionRequirement[] = [];
 
   for (const requirement of requirements) {
-    if (!scope.get(requirement.groupId)?.has(requirement.action)) {
+    const isAuthorized = hasSuperAdmin
+      ? explicitActions.has(requirement.action)
+      : (scope.get(requirement.groupId)?.has(requirement.action) ?? false);
+
+    if (!isAuthorized) {
       missing.push(requirement);
     }
   }

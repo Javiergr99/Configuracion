@@ -7,6 +7,7 @@ import type {
 import { buildInitialPermissionAssignmentPlan } from "@/features/system-administration/model/initial-permission-assignment";
 import { buildPermissionOperationPlan } from "@/features/system-administration/model/permission-operation-plan";
 import {
+  actorHasScopedAction,
   missingScopedRequirementsForInitialPermissionPlan,
   missingScopedRequirementsForPermissionPlan,
 } from "@/features/system-administration/model/permission-scope";
@@ -91,9 +92,10 @@ describe("permission-scope", () => {
     ]);
   });
 
-  it("permite a SUPER_ADMIN operar sobre cualquier grupo", () => {
-    const actor = actorWithGroupActions({ "g-mesa": ["SUPER_ADMIN"] });
-    actor.permissions = ["SUPER_ADMIN"];
+  it("permite a SUPER_ADMIN operar entre grupos con la accion explicita", () => {
+    const actor = actorWithGroupActions({
+      "g-mesa": ["SUPER_ADMIN", "ASIGNAR_ACCIONES_USUARIO"],
+    });
     const plan = buildPermissionOperationPlan(
       { groupIds: [], moduleIds: [], actionIds: [] },
       { groupIds: ["g-agenda"], moduleIds: ["m-agenda"], actionIds: ["a-agenda"] },
@@ -122,6 +124,48 @@ describe("permission-scope", () => {
         action: "ASIGNAR_ACCIONES_USUARIO",
         groupId: "g-agenda",
       }),
+    ]);
+  });
+  it("SUPER_ADMIN no repone la accion de asignacion revocada", () => {
+    const actor = actorWithGroupActions({ "g-mesa": ["SUPER_ADMIN"] });
+    const plan = buildPermissionOperationPlan(
+      { groupIds: [], moduleIds: [], actionIds: [] },
+      { groupIds: ["g-agenda"], moduleIds: ["m-agenda"], actionIds: ["a-agenda"] },
+      catalog,
+    );
+
+    expect(missingScopedRequirementsForPermissionPlan(plan, catalog, actor)).toEqual([
+      expect.objectContaining({
+        action: "ASIGNAR_ACCIONES_USUARIO",
+        groupId: "g-agenda",
+      }),
+    ]);
+  });
+
+  it("SUPER_ADMIN solo amplia el alcance de acciones que conserva", () => {
+    const actor = actorWithGroupActions({
+      "g-mesa": ["SUPER_ADMIN", "ASIGNAR_ACCIONES_USUARIO"],
+    });
+
+    expect(actorHasScopedAction(actor, "g-agenda", "ASIGNAR_ACCIONES_USUARIO")).toBe(true);
+    expect(actorHasScopedAction(actor, "g-agenda", "QUITAR_ACCIONES_USUARIO")).toBe(false);
+  });
+
+  it("SUPER_ADMIN sin CREAR_USUARIO no habilita el alta de usuarios", () => {
+    const actor = actorWithGroupActions({
+      "g-mesa": ["SUPER_ADMIN", "ASIGNAR_ACCIONES_USUARIO"],
+    });
+    const plan = buildInitialPermissionAssignmentPlan(
+      {
+        groupIds: ["g-mesa"],
+        moduleIds: ["m-mesa"],
+        actionIds: ["a-mesa"],
+      },
+      catalog,
+    );
+
+    expect(missingScopedRequirementsForInitialPermissionPlan(plan, catalog, actor)).toEqual([
+      expect.objectContaining({ action: "CREAR_USUARIO", groupId: "g-mesa" }),
     ]);
   });
 });
